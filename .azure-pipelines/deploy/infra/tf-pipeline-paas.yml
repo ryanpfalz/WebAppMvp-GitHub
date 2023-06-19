@@ -1,0 +1,90 @@
+trigger: none
+pool:
+  vmImage: "ubuntu-latest"
+
+# AzDO Labs Terraform: https://www.azuredevopslabs.com/labs/vstsextend/terraform/
+# environment determined by selection at runtime
+# TerraformVars needs to be linked to the pipeline in Azure DevOps
+parameters:
+  - name: environment
+    displayName: Variable Group
+    type: string
+    default: WebAppVarsDev
+    values:
+      - WebAppVarsDev
+      - WebAppVarsQA
+
+stages:
+  - stage:
+    variables:
+      - group: ${{ parameters.environment }}
+    displayName: "Deploy infrastructure using ${{ parameters.environment }}"
+    jobs:
+      - job:
+        steps:
+          # https://www.mikaelkrief.com/terraform-remote-backend-azure/ - env state stored by container
+          - task: AzureCLI@2
+            displayName: "Set Terraform Backend Configuration"
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                # az configure --defaults group=$(tfBackendRg) location=$(tfBackendRegion)
+                az group create --name $(tfBackendRg) --location $(tfBackendRegion)
+                az storage account create --resource-group $(tfBackendRg) --name $(tfBackendStorageAccount) --sku Standard_LRS --encryption-services blob
+                tfBackendStorageKey=$(az storage account keys list --account-name $(tfBackendStorageAccount) --resource-group $(tfBackendRg) --query "[0].value" --output tsv)
+                az storage container create --name $(tfBackendContainer) --public-access off --account-name $(tfBackendStorageAccount) --account-key $tfBackendStorageKey
+                # tfBackendStorageKey=$(az storage account keys list --account-name $(tfBackendStorageAccount) --resource-group $(tfBackendRg) --query "[0].value" --output tsv)
+
+          # - task: AzureCLI@2
+          #   displayName: "Set Terraform Backend Configuration"
+          #   inputs:
+          #     azureSubscription: $(azureSubscription)
+          #     scriptType: "bash"
+          #     scriptLocation: "inlineScript"
+          #     inlineScript: |
+          #       az group create --name $($tfBackendRg) --location $($tfBackendRegion)
+          #       az storage account create --resource-group $($tfBackendRg)--name $($tfBackendStorageAccount) --sku Standard_LRS --encryption-services blob
+          #       $tfBackendStorageKey=$(az storage account keys list --account-name $($tfBackendStorageAccount) --resource-group $($tfBackendRg) --query "[0].value" --output tsv)
+          #       az storage container create --name $($tfBackendContainer) --public-access off --account-name $($tfBackendStorageAccount) --account-key $($tfBackendStorageKey)
+
+          # - task: TerraformInstaller@0
+          #   displayName: "Install Terraform"
+          #   inputs:
+          #     terraformVersion: "0.14.x"
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: latest
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Init"
+            inputs:
+              command: "init"
+              commandOptions: "-reconfigure"
+              backendServiceArm: $(azureSubscription)
+              backendAzureRmResourceGroupName: $(tfBackendRg)
+              backendAzureRmStorageAccountName: $(tfBackendStorageAccount)
+              backendAzureRmContainerName: $(tfBackendContainer)
+              backendAzureRmKey: "$(envTag)/terraform.tfstate"
+              # backendAzureRmUseTfStateLock: true
+              workingDirectory: "$(System.DefaultWorkingDirectory)/infra/paas/terraform"
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Plan"
+            inputs:
+              command: "plan"
+              # environmentServiceName: $(azureSubscription)
+              commandOptions: "-var module_resource_group_name=$(resourceGroupName) -var module_app_service_name=$(appServiceName) -var module_app_service_plan=$(appServicePlanName) -var module_location=$(location) -var module_env_tag=$(envTag) -out=$(System.DefaultWorkingDirectory)/tf.tfplan"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/infra/paas/terraform"
+              environmentServiceNameAzureRM: $(azureSubscription)
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Apply"
+            inputs:
+              command: "apply"
+              environmentServiceName: $(azureSubscription)
+              commandOptions: "$(System.DefaultWorkingDirectory)/tf.tfplan"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/infra/paas/terraform"
+              environmentServiceNameAzureRM: $(azureSubscription)
