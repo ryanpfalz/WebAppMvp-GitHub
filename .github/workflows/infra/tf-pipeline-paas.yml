@@ -6,8 +6,8 @@ name: Azure Terraform Deployment
 on:
   push:
     branches:
-      # - dev
-      - NA
+      - dev
+      # - NA
   workflow_dispatch:
     inputs:
       name:
