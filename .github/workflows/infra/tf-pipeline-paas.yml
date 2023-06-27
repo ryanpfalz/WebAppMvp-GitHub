@@ -6,6 +6,7 @@ name: Azure Terraform Deployment
 on:
   push:
     branches:
+      # - dev
       - NA
   workflow_dispatch:
     inputs:
@@ -35,8 +36,8 @@ jobs:
     env:
       #this is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
-    outputs:
-      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+    # outputs:
+    #   tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -49,143 +50,106 @@ jobs:
         with:
           terraform_wrapper: false
 
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      - name: Terraform Init
-        run: terraform init
+  #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+  #     - name: Terraform Init
+  #       run: terraform init
 
-      # Checks that all Terraform configuration files adhere to a canonical format
-      # Will fail the build if not
-      - name: Terraform Format
-        run: terraform fmt -check
+  #     # Checks that all Terraform configuration files adhere to a canonical format
+  #     # Will fail the build if not
+  #     - name: Terraform Format
+  #       run: terraform fmt -check
 
-      # Generates an execution plan for Terraform
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-      - name: Terraform Plan
-        id: tf-plan
-        run: |
-          export exitcode=0
-          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+  #     # Generates an execution plan for Terraform
+  #     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+  #     - name: Terraform Plan
+  #       id: tf-plan
+  #       run: |
+  #         export exitcode=0
+  #         terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+  #         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
 
-          if [ $exitcode -eq 1 ]; then
-            echo Terraform Plan Failed!
-            exit 1
-          else 
-            exit 0
-          fi
+  #         if [ $exitcode -eq 1 ]; then
+  #           echo Terraform Plan Failed!
+  #           exit 1
+  #         else
+  #           exit 0
+  #         fi
 
-      # Save plan to artifacts
-      - name: Publish Terraform Plan
-        uses: actions/upload-artifact@v3
-        with:
-          name: tfplan
-          path: tfplan
+  #     # Save plan to artifacts
+  #     - name: Publish Terraform Plan
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: tfplan
+  #         path: tfplan
 
-      # Create string output of Terraform Plan
-      - name: Create String Output
-        id: tf-plan-string
-        run: |
-          TERRAFORM_PLAN=$(terraform show -no-color tfplan)
+  #     # Create string output of Terraform Plan
+  #     - name: Create String Output
+  #       id: tf-plan-string
+  #       run: |
+  #         TERRAFORM_PLAN=$(terraform show -no-color tfplan)
 
-          delimiter="$(openssl rand -hex 8)"
-          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
-          echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
-          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo '```terraform' >> $GITHUB_OUTPUT
-          echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
-          echo '```' >> $GITHUB_OUTPUT
-          echo "</details>" >> $GITHUB_OUTPUT
-          echo "${delimiter}" >> $GITHUB_OUTPUT
+  #         delimiter="$(openssl rand -hex 8)"
+  #         echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+  #         echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+  #         echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+  #         echo "" >> $GITHUB_OUTPUT
+  #         echo '```terraform' >> $GITHUB_OUTPUT
+  #         echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
+  #         echo '```' >> $GITHUB_OUTPUT
+  #         echo "</details>" >> $GITHUB_OUTPUT
+  #         echo "${delimiter}" >> $GITHUB_OUTPUT
 
-      # Publish Terraform Plan as task summary
-      - name: Publish Terraform Plan to Task Summary
-        env:
-          SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
-        run: |
-          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+  #     # Publish Terraform Plan as task summary
+  #     - name: Publish Terraform Plan to Task Summary
+  #       env:
+  #         SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
+  #       run: |
+  #         echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      # # If this is a PR post the changes
-      # - name: Push Terraform Output to PR
-      #   if: github.ref != 'refs/heads/main'
-      #   uses: actions/github-script@v6
-      #   env:
-      #     SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const body = `${process.env.SUMMARY}`;
-      #       github.rest.issues.createComment({
-      #           issue_number: context.issue.number,
-      #           owner: context.repo.owner,
-      #           repo: context.repo.repo,
-      #           body: body
-      #       })
+  #     # # If this is a PR post the changes
+  #     # - name: Push Terraform Output to PR
+  #     #   if: github.ref != 'refs/heads/main'
+  #     #   uses: actions/github-script@v6
+  #     #   env:
+  #     #     SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
+  #     #   with:
+  #     #     github-token: ${{ secrets.GITHUB_TOKEN }}
+  #     #     script: |
+  #     #       const body = `${process.env.SUMMARY}`;
+  #     #       github.rest.issues.createComment({
+  #     #           issue_number: context.issue.number,
+  #     #           owner: context.repo.owner,
+  #     #           repo: context.repo.repo,
+  #     #           body: body
+  #     #       })
 
-  terraform-apply:
-    name: "Terraform Apply"
-    if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
-    runs-on: ubuntu-latest
-    environment: production
-    needs: [terraform-plan]
+  # terraform-apply:
+  #   name: "Terraform Apply"
+  #   if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
+  #   runs-on: ubuntu-latest
+  #   environment: production
+  #   needs: [terraform-plan]
 
-    steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v3
+  #   steps:
+  #     # Checkout the repository to the GitHub Actions runner
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+  #     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+  #     - name: Setup Terraform
+  #       uses: hashicorp/setup-terraform@v2
 
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      - name: Terraform Init
-        run: terraform init
+  #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+  #     - name: Terraform Init
+  #       run: terraform init
 
-      # Download saved plan from artifacts
-      - name: Download Terraform Plan
-        uses: actions/download-artifact@v3
-        with:
-          name: tfplan
+  #     # Download saved plan from artifacts
+  #     - name: Download Terraform Plan
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: tfplan
 
-      # Terraform Apply
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
-
-#       - name: Login to Azure
-#         uses: azure/login@v1
-#         with:
-#           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-#       # https://www.mikaelkrief.com/terraform-remote-backend-azure/ - env state stored by container
-#       - name: Set Terraform Backend Configuration
-#         run: |
-#           az configure --defaults group=${{ env.tfBackendRg }} location=${{ env.tfBackendRegion }}
-#           az storage account create --name ${{ env.tfBackendStorageAccount }} --sku Standard_LRS --encryption-services blob
-#           tfBackendStorageKey=$(az storage account keys list --account-name ${{ env.tfBackendStorageAccount }} --resource-group ${{ env.tfBackendRg }} --query "[0].value" --output tsv)
-#           az storage container create --name ${{ env.tfBackendContainer }} --public-access off --account-name ${{ env.tfBackendStorageAccount }} --account-key ${{ env.tfBackendStorageKey }}
-
-#       - name: Install Terraform
-#         uses: hashicorp/setup-terraform@v1
-#         with:
-#           terraform_version: "0.14.x"
-
-#       - name: Terraform Init
-#         run: terraform init -backend-config="resource_group_name=${{ env.resourceGroupName }}" -backend-config="app_service_name=${{ env.appServiceName }}" -backend-config="app_service_plan=${{ env.appServicePlanName }}" -backend-config="storage_account_name=${{ env.tfBackendStorageAccount }}" -backend-config="container_name=${{ env.tfBackendContainer }}" -backend-config="key=terraform.tfstate"
-#         working-directory: $(System.DefaultWorkingDirectory)/infra/terraform
-
-#       - name: Terraform Plan
-#         run: terraform plan -var="resource_group_name=${{ env.resourceGroupName }}" -var="app_service_name=${{ env.appServiceName }}" -var="app_service_plan=${{ env.appServicePlanName }}"
-#         working-directory: $(System.DefaultWorkingDirectory)/infra/terraform
-
-#       - name: Terraform Apply
-#         run: terraform apply -var="resource_group_name=${{ env.resourceGroupName }}" -var="app_service_name=${{ env.appServiceName }}" -var="app_service_plan=${{ env.appServicePlanName }}"
-#         working-directory: $(System.DefaultWorkingDirectory)/infra/terraform
+  #     # Terraform Apply
+  #     - name: Terraform Apply
+  #       run: terraform apply -auto-approve tfplan
