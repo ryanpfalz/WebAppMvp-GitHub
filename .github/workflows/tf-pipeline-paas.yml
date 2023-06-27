@@ -12,6 +12,7 @@ on:
         options:
           - Dev
           - QA
+          - Stage
 
 #Special permissions required for OIDC authentication
 permissions:
