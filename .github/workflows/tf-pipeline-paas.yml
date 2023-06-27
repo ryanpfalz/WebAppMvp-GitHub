@@ -4,10 +4,6 @@ name: Azure Terraform Deployment
 #   environment: ${{ github.event.inputs.environment }}
 
 on:
-  push:
-    branches:
-      - dev
-      # - NA
   workflow_dispatch:
     inputs:
       name:

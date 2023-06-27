@@ -3,7 +3,7 @@ name: Azure Bicep Deployment
 on:
   push:
     branches:
-      - main
+      - NA
 
 env:
   environment: ${{ github.event.inputs.environment }}
