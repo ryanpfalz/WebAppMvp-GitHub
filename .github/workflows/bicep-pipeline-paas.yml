@@ -1,0 +1,30 @@
+name: Azure Bicep Deployment
+
+on:
+  push:
+    branches:
+      - NA
+
+env:
+  environment: ${{ github.event.inputs.environment }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        run: |
+          az group create --name ${{ env.resourceGroupName }} --location ${{ env.region }}
+
+      - name: Deploy Bicep Template
+        run: |
+          az deployment group create --resource-group ${{ env.resourceGroupName }} --template-file main.bicep --parameters resourceGroupName=${{ env.resourceGroupName }} appServiceName=${{ env.appServiceName }} appServicePlanName=${{ env.appServicePlanName }} --mode Incremental

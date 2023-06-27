@@ -1,0 +1,39 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+# environment determined by selection at runtime
+parameters:
+  - name: environment
+    displayName: Variable Group
+    type: string
+    default: IaaSWebAppVarsDev
+    values:
+      - IaaSWebAppVarsDev
+      - IaaSWebAppVarsQA
+
+stages:
+  - stage:
+    variables:
+      - group: ${{ parameters.environment }}
+    displayName: "Deploy infrastructure using ${{ parameters.environment }}"
+    jobs:
+      - job:
+        steps:
+          - task: AzureCLI@2
+            displayName: "Create Resource Group"
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: "az group create --name $(resourceGroupName) --location $(location)"
+
+          - task: AzureCLI@2
+            displayName: "Deploy Bicep Template"
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az deployment group create --resource-group $(resourceGroupName) --template-file infra/iaas/bicep/main.bicep --parameters adminUsername=$(adminUsername) vmSize=$(vmSize) vmName=$(vmName) location=$(location) adminPassword=$(adminPassword) --mode Incremental

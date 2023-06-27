@@ -1,0 +1,29 @@
+trigger: none
+
+pool:
+  vmImage: "windows-latest"
+
+stages:
+  - stage: A
+    variables:
+      - group: WebAppVarsDev
+    jobs:
+      - job: A1
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "$(appServiceName)"
+
+  - stage: B
+    variables:
+      - group: WebAppVarsQA
+    jobs:
+      - job: B1
+        steps:
+          - task: PowerShell@2
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "$(appServiceName)"

@@ -1,0 +1,81 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - NA
+
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "6.x"
+          include-prerelease: true
+
+      - name: Restore NuGet packages
+        run: dotnet restore $(applicationName)/*.sln
+
+      - name: Restore project dependencies
+        run: dotnet restore **/$(applicationName)/$(applicationName).csproj
+
+      - name: Build web app
+        run: dotnet build --configuration ${{ env.buildConfiguration }} -p:OutputPath=$(Build.BinariesDirectory)/$(applicationName) **/$(applicationName)/$(applicationName).csproj
+
+      - name: Publish web app
+        run: dotnet publish $(applicationName)/$(applicationName)/$(applicationName).csproj --configuration ${{ env.buildConfiguration }} -p:PublishDir=$(Build.BinariesDirectory)/$(applicationName) --no-restore
+
+      - name: Archive web app
+        uses: actions/upload-artifact@v2
+        with:
+          name: dotnet-app
+          path: $(Build.BinariesDirectory)/$(applicationName)
+
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dotnet-app
+          path: $(Build.ArtifactStagingDirectory)
+
+      - name: Deploy to Azure App Service (Dev)
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: "<dev-app-service-name>"
+          package: $(Build.ArtifactStagingDirectory)/$(applicationName).zip
+          publish-profile: ${{ secrets.DEV_PUBLISH_PROFILE }}
+
+  deploy-qa:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dotnet-app
+          path: $(Build.ArtifactStagingDirectory)
+
+      - name: Deploy to Azure App Service (QA)
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: "<qa-app-service-name>"
+          package: $(Build.ArtifactStagingDirectory)/$(applicationName).zip
+          publish-profile: ${{ secrets.QA_PUBLISH_PROFILE }}

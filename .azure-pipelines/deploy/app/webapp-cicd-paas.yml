@@ -1,0 +1,117 @@
+trigger: none
+
+pool:
+  vmImage: "windows-latest"
+
+variables:
+  buildConfiguration: "Release"
+  applicationName: "DemoWebApplication"
+
+stages:
+  - stage: Build
+    displayName: Build web app and publish artifacts
+    jobs:
+      - job: BuildDotnetApp
+        displayName: Build Dotnet App
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: "6.x"
+              includePreviewVersions: true
+
+          - task: NuGetCommand@2
+            inputs:
+              restoreSolution: "$(applicationName)/*.sln"
+
+          # restore project dependencies
+          - task: DotNetCoreCLI@2
+            displayName: "Restore project dependencies"
+            inputs:
+              command: "restore"
+              projects: "**/$(applicationName)/$(applicationName).csproj"
+
+          # build web app
+          - task: DotNetCoreCLI@2
+            displayName: "dotnet build"
+            inputs:
+              command: "build"
+              arguments: "--configuration $(BuildConfiguration) -p:OutputPath=$(Build.BinariesDirectory)/$(applicationName)"
+              projects: "**/$(applicationName)/$(applicationName).csproj"
+
+          # run unit tests
+          # - task: DotNetCoreCLI@2
+          #   displayName: "Run Unit Tests"
+          #   inputs:
+          #     command: "test"
+          #     arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
+          #     publishTestResults: true
+          #     projects: "**/UnitTests/*.csproj"
+
+          # publish code coverage results
+          # - task: PublishCodeCoverageResults@1
+          #   displayName: "Publish Code Coverage Report"
+          #   inputs:
+          #     codeCoverageTool: Cobertura
+          #     summaryFileLocation: "$(Agent.TempDirectory)/**/coverage.cobertura.xml"
+
+          # publish web app
+          - task: DotNetCoreCLI@2
+            displayName: "Publish web project"
+            inputs:
+              command: publish
+              publishWebProjects: False
+              projects: web/$(applicationName)/$(applicationName)/$(applicationName).csproj
+              arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(applicationName)"
+              zipAfterPublish: true
+
+          - publish: "$(Build.ArtifactStagingDirectory)"
+            artifact: drop
+
+  - stage: "DeployDev"
+    displayName: "Deploy to the dev environment"
+    variables:
+      - group: WebAppVarsDev
+    dependsOn: Build
+    condition: succeeded('Build')
+    jobs:
+      - deployment: DeployDev
+        environment: WebAppMVP-Dev
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+                - task: AzureWebApp@1
+                  displayName: "Azure App Service Deploy: Dev"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    appType: "webAppLinux"
+                    appName: "$(appServiceName)"
+                    package: "$(Pipeline.Workspace)/drop/$(applicationName)/*.zip"
+
+  - stage: "DeployQA"
+    displayName: "Deploy to the QA environment"
+    variables:
+      - group: WebAppVarsQA
+    dependsOn: DeployDev
+    condition: succeeded('DeployDev')
+    jobs:
+      - deployment: DeployQA
+        environment: WebAppMVP-QA
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+                - task: AzureWebApp@1
+                  displayName: "Azure App Service Deploy: QA"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    appType: "webAppLinux"
+                    appName: "$(appServiceName)"
+                    package: "$(Pipeline.Workspace)/drop/$(applicationName)/*.zip"
+                    deployToSlotOrASE: true
+                    resourceGroupName: $(resourceGroupName)
+                    slotName: "staging"

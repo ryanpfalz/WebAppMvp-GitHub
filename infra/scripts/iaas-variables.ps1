@@ -1,0 +1,1 @@
+az pipelines variable-group create --organization https://dev.azure.com/<org>/ --project '' --name '' --variables azureSubscription='' adminUsername='' adminPassword='' vmName='' vmSize='' location='' resourceGroupName='' envTag=''

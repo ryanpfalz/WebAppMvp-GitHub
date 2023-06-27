@@ -1,0 +1,5 @@
+module_resource_group_name = "webappmvp-qa"
+module_location = "centralus"
+module_app_service_name = "rmpwamvpqa"
+module_app_service_plan = "rmpwamvpplan-qa"
+module_env_tag = "qa"
