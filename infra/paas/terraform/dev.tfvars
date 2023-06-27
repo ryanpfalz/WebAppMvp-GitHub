@@ -1,0 +1,5 @@
+module_resource_group_name = "webappmvp-dev"
+module_location = "centralus"
+module_app_service_name = "rmpwamvpdev"
+module_app_service_plan = "rmpwamvpplan-dev"
+module_env_tag = "dev"

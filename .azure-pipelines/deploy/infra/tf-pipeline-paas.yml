@@ -71,12 +71,24 @@ stages:
               # backendAzureRmUseTfStateLock: true
               workingDirectory: "$(System.DefaultWorkingDirectory)/infra/paas/terraform"
 
+          - task: Bash@3
+            displayName: "Set environment var parameter"
+            inputs:
+              targetType: "inline"
+              script: |
+                if [[ "${{ parameters.environment }}" == "WebAppVarsDev" ]]; then
+                  echo "##vso[task.setvariable variable=varFile]dev"
+                elif [[ "${{ parameters.environment }}" == "WebAppVarsQA" ]]; then
+                  echo "##vso[task.setvariable variable=varFile]qa"
+                fi
+
           - task: TerraformTaskV4@4
             displayName: "Terraform Plan"
             inputs:
               command: "plan"
               # environmentServiceName: $(azureSubscription)
-              commandOptions: "-var module_resource_group_name=$(resourceGroupName) -var module_app_service_name=$(appServiceName) -var module_app_service_plan=$(appServicePlanName) -var module_location=$(location) -var module_env_tag=$(envTag) -out=$(System.DefaultWorkingDirectory)/tf.tfplan"
+              # -var module_app_service_name=$(appServiceName) -var module_app_service_plan=$(appServicePlanName) -var module_location=$(location) -var module_env_tag=$(envTag) -out=$(System.DefaultWorkingDirectory)/tf.tfplan"
+              commandOptions: "-var-file $(varFile).tfvars -out=$(System.DefaultWorkingDirectory)/tf.tfplan"
               workingDirectory: "$(System.DefaultWorkingDirectory)/infra/paas/terraform"
               environmentServiceNameAzureRM: $(azureSubscription)
 
