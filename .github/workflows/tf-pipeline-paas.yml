@@ -5,13 +5,13 @@ name: Azure Terraform Deployment
 
 on:
   workflow_dispatch:
-    # inputs:
-    #   name:
-    #     type: choice
-    #     description: Environment
-    #     options:
-    #       - Dev
-    #       - QA
+    inputs:
+      name:
+        type: choice
+        description: Environment
+        options:
+          - Dev
+          - QA
 
 #Special permissions required for OIDC authentication
 permissions:
