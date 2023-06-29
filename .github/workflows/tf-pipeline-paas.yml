@@ -28,10 +28,6 @@ on:
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate.
 env:
   TF_DIR: "./infra/paas/terraform"
-  TF_RESOURCE_GROUP: "terraform-state-rg"
-  TF_STORAGE_ACCOUNT: "rmptfstatestorage"
-  TF_CONTAINER_NAME: "webappmvpcontainer-gh"
-  TF_REGION: "centralus"
 
 jobs:
   terraform-plan:
@@ -66,10 +62,10 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az group create --name $TF_RESOURCE_GROUP --location $TF_REGION
-            az storage account create --resource-group $TF_RESOURCE_GROUP --name $TF_STORAGE_ACCOUNT --sku Standard_LRS --encryption-services blob
-            tfBackendStorageKey=$(az storage account keys list --account-name $TF_STORAGE_ACCOUNT --resource-group $TF_RESOURCE_GROUP --query "[0].value" --output tsv)
-            az storage container create --name $TF_CONTAINER_NAME --public-access off --account-name $TF_STORAGE_ACCOUNT --account-key $tfBackendStorageKey
+            az group create --name ${{ vars.TF_RESOURCE_GROUP }} --location ${{ vars.TF_REGION }}
+            az storage account create --resource-group ${{ vars.TF_RESOURCE_GROUP }} --name ${{ vars.TF_STORAGE_ACCOUNT }} --sku Standard_LRS --encryption-services blob
+            tfBackendStorageKey=$(az storage account keys list --account-name ${{ vars.TF_STORAGE_ACCOUNT }} --resource-group ${{ vars.TF_RESOURCE_GROUP }} --query "[0].value" --output tsv)
+            az storage container create --name ${{ vars.TF_CONTAINER_NAME }} --public-access off --account-name ${{ vars.TF_STORAGE_ACCOUNT }} --account-key $tfBackendStorageKey
 
       # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
       - name: Terraform Init
@@ -79,9 +75,9 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          RESOURCE_GROUP: $TF_RESOURCE_GROUP
-          STORAGE_ACCOUNT: $TF_STORAGE_ACCOUNT
-          CONTAINER_NAME: $TF_CONTAINER_NAME
+          RESOURCE_GROUP: ${{ vars.TF_RESOURCE_GROUP }}
+          STORAGE_ACCOUNT: ${{ vars.TF_STORAGE_ACCOUNT }}
+          CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
         run: |
           cd $TF_DIR
           terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
