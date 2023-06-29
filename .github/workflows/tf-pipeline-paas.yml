@@ -7,13 +7,16 @@ name: Azure Terraform Deployment
 # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
 
 on:
+  # for development ###
   push:
     branches:
       - dev
+  # for development ###
   workflow_dispatch:
     inputs:
-      name:
+      environment:
         type: choice
+        required: true
         default: Dev
         description: Environment
         options:
@@ -51,6 +54,14 @@ jobs:
         with:
           terraform_wrapper: false
 
+      - name: Lowercase environment
+        id: variableUpdate
+        run: echo "::set-output name=lowerCaseEnvValue::${ENVIRONMENT,,}"
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+
+      - run: echo ${{ steps.variableUpdate.outputs.lowerCaseEnvValue }}
+
       # https://github.com/marketplace/actions/azure-login
       # need to set service principal as contributor on the subscription
 
@@ -79,9 +90,10 @@ jobs:
           RESOURCE_GROUP: ${{ vars.TF_RESOURCE_GROUP }}
           STORAGE_ACCOUNT: ${{ vars.TF_STORAGE_ACCOUNT }}
           CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
+          KEY: "${{ steps.variableUpdate.outputs.lowerCaseEnvValue }}/terraform.tfstate"
         run: |
           cd $TF_DIR
-          terraform init -reconfigure -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+          terraform init -reconfigure -backend-config="key=$STORAGE_ACCOUNT" -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
       #     # Checks that all Terraform configuration files adhere to a canonical format
       #     # Will fail the build if not
       #     - name: Terraform Format
