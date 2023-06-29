@@ -23,7 +23,7 @@ on:
 # permissions:
 #   id-token: write
 #   contents: read
-  # pull-requests: write
+# pull-requests: write
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate.
 env:
@@ -54,43 +54,13 @@ jobs:
         with:
           terraform_wrapper: false
 
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      # - name: Terraform Init
-      # #   run: terraform init
-      # - name: Terraform Init
-      #   uses: hashicorp/terraform-github-actions@master
-      #   with:
-      # tf_actions_version: "latest"
-      # tf_actions_subcommand: "init"
-      # tf_actions_working_dir: "./infra/paas/terraform"
-      # tf_actions_comment: true
-
-      # - name: Terraform Init
-      #   id: echotest
-      #   env:
-      #     ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      #     ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      #     ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      #     ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      #     RESOURCE_GROUP: $TF_RESOURCE_GROUP
-      #     STORAGE_ACCOUNT: $TF_STORAGE_ACCOUNT
-      #     CONTAINER_NAME: $TF_CONTAINER_NAME
-      #   run: |
-      #     cd $TF_DIR
-      #     echo $ARM_CLIENT_ID
-
       # https://github.com/marketplace/actions/azure-login
+      # need to set service principal as contributor on the subscription
+
       - name: Azure CLI Login
         uses: azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
-          # client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          # tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          # enable-AzPSSession: true
-
-        # with:
-        #   creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Azure CLI script file
         uses: azure/CLI@v1
@@ -114,8 +84,7 @@ jobs:
           CONTAINER_NAME: $TF_CONTAINER_NAME
         run: |
           cd $TF_DIR
-          terraform init
-
+          terraform init init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
       #     # Checks that all Terraform configuration files adhere to a canonical format
       #     # Will fail the build if not
       #     - name: Terraform Format
