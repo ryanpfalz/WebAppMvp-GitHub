@@ -1,11 +1,5 @@
 name: Azure Terraform Deployment
 
-# env:
-#   environment: ${{ github.event.inputs.environment }}
-
-# good resources:
-# https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
-
 on:
   # for development ###
   push:
@@ -25,13 +19,7 @@ on:
           - Dev
           - QA
 
-#Special permissions required for OIDC authentication
-# permissions:
-#   id-token: write
-#   contents: read
-# pull-requests: write
-
-#These environment variables are used by the terraform azure provider to setup OIDD authenticate.
+#These environment variables are used by the terraform azure provider to authenticate
 env:
   TF_DIR: "./infra/paas/terraform"
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -40,14 +28,12 @@ env:
   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 jobs:
-  terraform-plan:
-    name: "Terraform Init + Plan"
+  terraform-run:
+    name: "Terraform Init, Plan, Apply"
     runs-on: ubuntu-latest
     env:
       #this is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
-    # outputs:
-    #   tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -76,11 +62,8 @@ jobs:
           fi
           )" >> $GITHUB_ENV
 
-      # - run: echo ${{ steps.variableUpdate.outputs.lowerCaseEnvValue }}
-
       # https://github.com/marketplace/actions/azure-login
       # need to set service principal as contributor on the subscription
-
       - name: Azure CLI Login
         uses: azure/login@v1
         with:
@@ -98,156 +81,24 @@ jobs:
       # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
       - name: Terraform Init
         id: tf-init
-        # env:
-        #   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        #   ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        #   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        #   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          # RESOURCE_GROUP: ${{ vars.TF_RESOURCE_GROUP }}
-          # STORAGE_ACCOUNT: ${{ vars.TF_STORAGE_ACCOUNT }}
-          # CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
-          # KEY: "${{ env.lowerCaseEnvValue }}/terraform.tfstate"
         run: |
           cd $TF_DIR
           terraform init -reconfigure -backend-config="key=${{ env.lowerCaseEnvValue }}/terraform.tfstate" -backend-config="storage_account_name=${{ vars.TF_STORAGE_ACCOUNT }}" -backend-config="container_name=${{ vars.TF_CONTAINER_NAME }}" -backend-config="resource_group_name=${{ vars.TF_RESOURCE_GROUP }}"
-      #     # Checks that all Terraform configuration files adhere to a canonical format
-      #     # Will fail the build if not
-      #     - name: Terraform Format
-      #       run: terraform fmt -check
-      # Generates an execution plan for Terraform
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+
+      - name: Terraform Format
+        run: |
+          cd $TF_DIR
+          terraform fmt -check
+
       - name: Terraform Plan
         id: tf-plan
-        # env:
-        #   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        #   ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        #   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        #   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
           cd $TF_DIR
           terraform plan -var-file ${{ env.lowerCaseEnvValue }}.tfvars -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
-        # echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-
-        # if [ $exitcode -eq 1 ]; then
-        #   echo Terraform Plan Failed
-        #   exit 1
-        # else
-        #   exit 0
-        # fi
-
+      # at this point, can add additional steps like saving out tfplan as an artifact, running apply in another stage after approval, etc.
+      # example: https://github.com/Azure-Samples/terraform-github-actions/blob/main/.github/workflows/tf-plan-apply.yml
       - name: Terraform Apply
-        # env:
-        #   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        #   ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        #   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        #   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
           cd $TF_DIR
           terraform apply -auto-approve tfplan
-# name: "Terraform Apply"
-#   # if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
-#   runs-on: ubuntu-latest
-#   environment: production
-#   needs: [terraform-plan]
-
-#   steps:
-#     # Checkout the repository to the GitHub Actions runner
-#     - name: Checkout
-#       uses: actions/checkout@v3
-
-#     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-#     - name: Setup Terraform
-#       uses: hashicorp/setup-terraform@v2
-
-#     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-#     - name: Terraform Init
-#       run: terraform init
-
-# Download saved plan from artifacts
-# - name: Download Terraform Plan
-#   uses: actions/download-artifact@v3
-#   with:
-#     name: tfplan
-
-# # Terraform Apply
-# - name: Terraform Apply
-#   run: terraform apply -auto-approve tfplan
-
-# # Save plan to artifacts
-# - name: Publish Terraform Plan
-#   uses: actions/upload-artifact@v3
-#   with:
-#     name: tfplan
-#     path: tfplan
-
-#     # Create string output of Terraform Plan
-#     - name: Create String Output
-#       id: tf-plan-string
-#       run: |
-#         TERRAFORM_PLAN=$(terraform show -no-color tfplan)
-
-#         delimiter="$(openssl rand -hex 8)"
-#         echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
-#         echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
-#         echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
-#         echo "" >> $GITHUB_OUTPUT
-#         echo '```terraform' >> $GITHUB_OUTPUT
-#         echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
-#         echo '```' >> $GITHUB_OUTPUT
-#         echo "</details>" >> $GITHUB_OUTPUT
-#         echo "${delimiter}" >> $GITHUB_OUTPUT
-
-#     # Publish Terraform Plan as task summary
-#     - name: Publish Terraform Plan to Task Summary
-#       env:
-#         SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
-#       run: |
-#         echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
-
-#     # # If this is a PR post the changes
-#     # - name: Push Terraform Output to PR
-#     #   if: github.ref != 'refs/heads/main'
-#     #   uses: actions/github-script@v6
-#     #   env:
-#     #     SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
-#     #   with:
-#     #     github-token: ${{ secrets.GITHUB_TOKEN }}
-#     #     script: |
-#     #       const body = `${process.env.SUMMARY}`;
-#     #       github.rest.issues.createComment({
-#     #           issue_number: context.issue.number,
-#     #           owner: context.repo.owner,
-#     #           repo: context.repo.repo,
-#     #           body: body
-#     #       })
-
-# terraform-apply:
-#   name: "Terraform Apply"
-#   if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
-#   runs-on: ubuntu-latest
-#   environment: production
-#   needs: [terraform-plan]
-
-#   steps:
-#     # Checkout the repository to the GitHub Actions runner
-#     - name: Checkout
-#       uses: actions/checkout@v3
-
-#     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-#     - name: Setup Terraform
-#       uses: hashicorp/setup-terraform@v2
-
-#     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-#     - name: Terraform Init
-#       run: terraform init
-
-#     # Download saved plan from artifacts
-#     - name: Download Terraform Plan
-#       uses: actions/download-artifact@v3
-#       with:
-#         name: tfplan
-
-#     # Terraform Apply
-#     - name: Terraform Apply
-#       run: terraform apply -auto-approve tfplan
