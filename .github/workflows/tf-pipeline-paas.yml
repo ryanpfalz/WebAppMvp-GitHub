@@ -63,14 +63,8 @@ jobs:
       # tf_actions_working_dir: "./infra/paas/terraform"
       # tf_actions_comment: true
 
-
-
-
-
-
-
       - name: Terraform Init
-        id: tf-init
+        id: echotest
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
