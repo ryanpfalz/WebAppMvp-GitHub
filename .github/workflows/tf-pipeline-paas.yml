@@ -72,7 +72,7 @@ jobs:
           ENVIRONMENT: ${{ github.event.inputs.selectedEnvironment }}
         run: |-
           echo "lowerCaseEnvValue=$(
-          if [ ${{ github.event.inputs.selectedEnvironment }} != '']; then
+          if [ '${{ github.event.inputs.selectedEnvironment }}' != '']; then
             echo ${{ github.event.inputs.selectedEnvironment }}
           elif [ ${{ github.ref_name }} == main]; then
             echo prod
