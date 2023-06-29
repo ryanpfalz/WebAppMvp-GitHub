@@ -3,6 +3,9 @@ name: Azure Terraform Deployment
 # env:
 #   environment: ${{ github.event.inputs.environment }}
 
+# good resources:
+# https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
+
 on:
   # push:
   #   branches:
@@ -17,9 +20,9 @@ on:
           - QA
 
 #Special permissions required for OIDC authentication
-permissions:
-  id-token: write
-  contents: read
+# permissions:
+#   id-token: write
+#   contents: read
   # pull-requests: write
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate.
@@ -29,7 +32,6 @@ env:
   TF_STORAGE_ACCOUNT: "rmptfstatestorage"
   TF_CONTAINER_NAME: "webappmvpcontainer-gh"
   TF_REGION: "centralus"
-# https://stackoverflow.com/a/67840292/8333117
 
 jobs:
   terraform-plan:
@@ -63,27 +65,28 @@ jobs:
       # tf_actions_working_dir: "./infra/paas/terraform"
       # tf_actions_comment: true
 
-      - name: Terraform Init
-        id: echotest
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          RESOURCE_GROUP: $TF_RESOURCE_GROUP
-          STORAGE_ACCOUNT: $TF_STORAGE_ACCOUNT
-          CONTAINER_NAME: $TF_CONTAINER_NAME
-        run: |
-          cd $TF_DIR
-          echo $ARM_CLIENT_ID
+      # - name: Terraform Init
+      #   id: echotest
+      #   env:
+      #     ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      #     ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      #     ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      #     ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      #     RESOURCE_GROUP: $TF_RESOURCE_GROUP
+      #     STORAGE_ACCOUNT: $TF_STORAGE_ACCOUNT
+      #     CONTAINER_NAME: $TF_CONTAINER_NAME
+      #   run: |
+      #     cd $TF_DIR
+      #     echo $ARM_CLIENT_ID
 
+      # https://github.com/marketplace/actions/azure-login
       - name: Azure CLI Login
         uses: azure/login@v1
         with:
-          # creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          # client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          # tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           # enable-AzPSSession: true
 
         # with:
