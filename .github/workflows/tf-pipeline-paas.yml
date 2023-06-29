@@ -68,13 +68,13 @@ jobs:
       # set based on the trigger branch (defaults to dev for any non-main branch) & set to lowercase
       - name: Update Environment Variables
         id: variableUpdate
-        env:
-          ENVIRONMENT: ${{ github.event.inputs.selectedEnvironment }}
+        # env:
+        #   ENVIRONMENT: ${{ github.event.inputs.selectedEnvironment }}
         run: |-
           echo "lowerCaseEnvValue=$(
-          if [ '${{ github.event.inputs.selectedEnvironment }}' != '']; then
+          if [[ "${{ github.event.inputs.selectedEnvironment }}" != "" ]]; then
             echo ${{ github.event.inputs.selectedEnvironment }}
-          elif [ ${{ github.ref_name }} == main]; then
+          elif [[ ${{ github.ref_name }} == "main" ]]; then
             echo prod
           else
             echo dev
