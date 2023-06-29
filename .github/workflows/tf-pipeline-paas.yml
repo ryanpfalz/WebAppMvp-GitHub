@@ -12,6 +12,8 @@ on:
     branches:
       - dev
   # for development ###
+
+  # need to be aligned to .tfvars file names
   workflow_dispatch:
     inputs:
       selectedEnvironment:
@@ -121,7 +123,7 @@ jobs:
         run: |
           cd $TF_DIR
           export exitcode=0
-          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+          terraform plan -var-file ${{ env.lowerCaseEnvValue }}.tfvars -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
 #         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
 
