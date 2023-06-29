@@ -98,18 +98,18 @@ jobs:
       # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
       - name: Terraform Init
         id: tf-init
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        # env:
+        #   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        #   ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        #   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        #   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           # RESOURCE_GROUP: ${{ vars.TF_RESOURCE_GROUP }}
           # STORAGE_ACCOUNT: ${{ vars.TF_STORAGE_ACCOUNT }}
           # CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
           # KEY: "${{ env.lowerCaseEnvValue }}/terraform.tfstate"
         run: |
           cd $TF_DIR
-          terraform init -reconfigure -backend-config="${{ env.lowerCaseEnvValue }}/terraform.tfstate" -backend-config="storage_account_name=${{ vars.TF_STORAGE_ACCOUNT }}" -backend-config="container_name=${{ vars.TF_CONTAINER_NAME }}" -backend-config="resource_group_name=${{ vars.TF_RESOURCE_GROUP }}"
+          terraform init -reconfigure -backend-config="key=${{ env.lowerCaseEnvValue }}/terraform.tfstate" -backend-config="storage_account_name=${{ vars.TF_STORAGE_ACCOUNT }}" -backend-config="container_name=${{ vars.TF_CONTAINER_NAME }}" -backend-config="resource_group_name=${{ vars.TF_RESOURCE_GROUP }}"
       #     # Checks that all Terraform configuration files adhere to a canonical format
       #     # Will fail the build if not
       #     - name: Terraform Format
