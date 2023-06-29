@@ -24,10 +24,11 @@ permissions:
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate.
 env:
-  ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-  ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-  ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
   TF_DIR: "./infra/paas/terraform"
+  TF_RESOURCE_GROUP: "terraform-state-rg"
+  TF_STORAGE_ACCOUNT: "rmptfstatestorage"
+  TF_CONTAINER_NAME: "webappmvpcontainer-gh"
+  TF_REGION: "centralus"
 # https://stackoverflow.com/a/67840292/8333117
 
 jobs:
@@ -62,8 +63,31 @@ jobs:
       # tf_actions_working_dir: "./infra/paas/terraform"
       # tf_actions_comment: true
 
+      - name: Azure CLI Login
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Azure CLI script file
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az group create --name $TF_RESOURCE_GROUP --location $TF_REGION
+            az storage account create --resource-group $TF_RESOURCE_GROUP --name $TF_STORAGE_ACCOUNT --sku Standard_LRS --encryption-services blob
+            tfBackendStorageKey=$(az storage account keys list --account-name $TF_STORAGE_ACCOUNT --resource-group $TF_RESOURCE_GROUP --query "[0].value" --output tsv)
+            az storage container create --name $TF_CONTAINER_NAME --public-access off --account-name $TF_STORAGE_ACCOUNT --account-key $tfBackendStorageKey
+
+      # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
       - name: Terraform Init
         id: tf-init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          RESOURCE_GROUP: $TF_RESOURCE_GROUP
+          STORAGE_ACCOUNT: $TF_STORAGE_ACCOUNT
+          CONTAINER_NAME: $TF_CONTAINER_NAME
         run: |
           cd $TF_DIR
           terraform init

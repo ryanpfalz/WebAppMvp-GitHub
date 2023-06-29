@@ -15,7 +15,7 @@ resource "azurerm_app_service" "app_service" {
   name                = var.module_app_service_name
   location            = var.module_location
   resource_group_name = var.module_resource_group_name
-  app_service_plan_id     = azurerm_app_service_plan.app_service_plan.id
+  app_service_plan_id = azurerm_app_service_plan.app_service_plan.id
 
   site_config {
     linux_fx_version = "DOTNETCORE|v6.0"
