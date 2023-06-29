@@ -54,7 +54,7 @@ jobs:
         run: |-
           echo "lowerCaseEnvValue=$(
           if [[ "${{ github.event.inputs.selectedEnvironment }}" != "" ]]; then
-            echo ${ ${{ github.event.inputs.selectedEnvironment }} ,,}
+            echo ${{ github.event.inputs.selectedEnvironment }} | awk '{print tolower($0)}'
           elif [[ "${{ github.ref_name }}" == "main" ]]; then
             echo prod
           else
