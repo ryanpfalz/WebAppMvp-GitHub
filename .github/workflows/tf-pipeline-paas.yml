@@ -7,13 +7,14 @@ name: Azure Terraform Deployment
 # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
 
 on:
-  # push:
-  #   branches:
-  #     - NA
+  push:
+    branches:
+      - dev
   workflow_dispatch:
     inputs:
       name:
         type: choice
+        default: Dev
         description: Environment
         options:
           - Dev
