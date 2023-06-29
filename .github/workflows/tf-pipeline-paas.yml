@@ -27,8 +27,7 @@ env:
   ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
   ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
   ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-  TF_DIR: Monday
-
+  TF_DIR: "./infra/paas/terraform"
 # https://stackoverflow.com/a/67840292/8333117
 
 jobs:
@@ -63,10 +62,10 @@ jobs:
       # tf_actions_working_dir: "./infra/paas/terraform"
       # tf_actions_comment: true
 
-      - name: Terraform Init
-        run: |
-          cd $TF_DIR
-          terraform init
+      # - name: Terraform Init
+      #   run: |
+      #     cd $TF_DIR
+      #     terraform init
 
   #     # Checks that all Terraform configuration files adhere to a canonical format
   #     # Will fail the build if not
