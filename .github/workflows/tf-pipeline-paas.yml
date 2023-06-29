@@ -14,7 +14,7 @@ on:
   # for development ###
   workflow_dispatch:
     inputs:
-      environment:
+      selectedEnvironment:
         type: choice
         required: true
         default: Dev
@@ -54,10 +54,12 @@ jobs:
         with:
           terraform_wrapper: false
 
+      - run: echo ${{ github.event.inputs.selectedEnvironment }}
+
       - name: Update Variables
         id: variableUpdate
         env:
-          ENVIRONMENT: ${{ github.event.inputs.environment }}
+          ENVIRONMENT: ${{ github.event.inputs.selectedEnvironment }}
         run: |
           echo $ENVIRONMENT
           echo "lowerCaseEnvValue=${ENVIRONMENT,,}" >> $GITHUB_OUTPUT
@@ -67,47 +69,51 @@ jobs:
       # https://github.com/marketplace/actions/azure-login
       # need to set service principal as contributor on the subscription
 
-      - name: Azure CLI Login
-        uses: azure/login@v1
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+###
+      # - name: Azure CLI Login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
-      - name: Setup Terraform Backend in Azure
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az group create --name ${{ vars.TF_RESOURCE_GROUP }} --location ${{ vars.TF_REGION }}
-            az storage account create --resource-group ${{ vars.TF_RESOURCE_GROUP }} --name ${{ vars.TF_STORAGE_ACCOUNT }} --sku Standard_LRS --encryption-services blob
-            tfBackendStorageKey=$(az storage account keys list --account-name ${{ vars.TF_STORAGE_ACCOUNT }} --resource-group ${{ vars.TF_RESOURCE_GROUP }} --query "[0].value" --output tsv)
-            az storage container create --name ${{ vars.TF_CONTAINER_NAME }} --public-access off --account-name ${{ vars.TF_STORAGE_ACCOUNT }} --account-key $tfBackendStorageKey
+      # - name: Setup Terraform Backend in Azure
+      #   uses: azure/CLI@v1
+      #   with:
+      #     inlineScript: |
+      #       az group create --name ${{ vars.TF_RESOURCE_GROUP }} --location ${{ vars.TF_REGION }}
+      #       az storage account create --resource-group ${{ vars.TF_RESOURCE_GROUP }} --name ${{ vars.TF_STORAGE_ACCOUNT }} --sku Standard_LRS --encryption-services blob
+      #       tfBackendStorageKey=$(az storage account keys list --account-name ${{ vars.TF_STORAGE_ACCOUNT }} --resource-group ${{ vars.TF_RESOURCE_GROUP }} --query "[0].value" --output tsv)
+      #       az storage container create --name ${{ vars.TF_CONTAINER_NAME }} --public-access off --account-name ${{ vars.TF_STORAGE_ACCOUNT }} --account-key $tfBackendStorageKey
 
-      # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
-      - name: Terraform Init
-        id: tf-init
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          RESOURCE_GROUP: ${{ vars.TF_RESOURCE_GROUP }}
-          STORAGE_ACCOUNT: ${{ vars.TF_STORAGE_ACCOUNT }}
-          CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
-          KEY: "${{ steps.variableUpdate.outputs.lowerCaseEnvValue }}/terraform.tfstate"
-        run: |
-          cd $TF_DIR
-          terraform init -reconfigure -backend-config="key=$KEY" -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
-      #     # Checks that all Terraform configuration files adhere to a canonical format
-      #     # Will fail the build if not
-      #     - name: Terraform Format
-      #       run: terraform fmt -check
+      # # https://nedinthecloud.com/2021/12/08/github-actions-with-terraform/
+      # - name: Terraform Init
+      #   id: tf-init
+      #   env:
+      #     ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      #     ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      #     ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      #     ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      #     RESOURCE_GROUP: ${{ vars.TF_RESOURCE_GROUP }}
+      #     STORAGE_ACCOUNT: ${{ vars.TF_STORAGE_ACCOUNT }}
+      #     CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
+      #     KEY: "${{ steps.variableUpdate.outputs.lowerCaseEnvValue }}/terraform.tfstate"
+      #   run: |
+      #     cd $TF_DIR
+      #     terraform init -reconfigure -backend-config="key=$KEY" -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+      # #     # Checks that all Terraform configuration files adhere to a canonical format
+      # #     # Will fail the build if not
+      # #     - name: Terraform Format
+      # #       run: terraform fmt -check
 
-      # Generates an execution plan for Terraform
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-      - name: Terraform Plan
-        id: tf-plan
-        run: |
-          export exitcode=0
-          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+      # # Generates an execution plan for Terraform
+      # # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+      # - name: Terraform Plan
+      #   id: tf-plan
+      #   run: |
+      #     export exitcode=0
+      #     terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+
+
+  ####
 
   #         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
 
