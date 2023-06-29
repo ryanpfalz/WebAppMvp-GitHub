@@ -56,9 +56,11 @@ jobs:
 
       - name: Update Variables
         id: variableUpdate
-        run: echo "::set-output name=lowerCaseEnvValue::${ENVIRONMENT,,}"
         env:
           ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          echo $ENVIRONMENT
+          echo "lowerCaseEnvValue=${ENVIRONMENT,,}" >> $GITHUB_OUTPUT
 
       - run: echo ${{ steps.variableUpdate.outputs.lowerCaseEnvValue }}
 
