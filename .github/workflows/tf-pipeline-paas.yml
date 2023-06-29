@@ -58,7 +58,7 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
-      - name: Azure CLI script file
+      - name: Setup Terraform Backend in Azure
         uses: azure/CLI@v1
         with:
           inlineScript: |
@@ -80,12 +80,7 @@ jobs:
           CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
         run: |
           cd $TF_DIR
-          echo "$PWD"
-          ls
-          echo "$STORAGE_ACCOUNT"
-          echo "$CONTAINER_NAME"
-          echo "$RESOURCE_GROUP"
-          terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+          terraform init -reconfigure -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
       #     # Checks that all Terraform configuration files adhere to a canonical format
       #     # Will fail the build if not
       #     - name: Terraform Format
