@@ -57,7 +57,7 @@ jobs:
       - name: Update Variables
         id: variableUpdate
         env:
-          ENVIRONMENT: ${{ inputs.environment }}
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
         run: |
           echo $ENVIRONMENT
           echo "lowerCaseEnvValue=${ENVIRONMENT,,}" >> $GITHUB_OUTPUT
