@@ -4,6 +4,9 @@ name: Azure Terraform Deployment
 #   environment: ${{ github.event.inputs.environment }}
 
 on:
+  push:
+    branches:
+      - NA
   workflow_dispatch:
     inputs:
       name:
@@ -12,7 +15,6 @@ on:
         options:
           - Dev
           - QA
-          - Stage
 
 #Special permissions required for OIDC authentication
 permissions:
@@ -26,9 +28,11 @@ env:
   ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
   ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
 
+# https://stackoverflow.com/a/67840292/8333117
+
 jobs:
   terraform-plan:
-    name: "Terraform Plan"
+    name: "Terraform Init + Plan"
     runs-on: ubuntu-latest
     env:
       #this is needed since we are running terraform with read-only permissions
@@ -47,9 +51,15 @@ jobs:
         with:
           terraform_wrapper: false
 
-  #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-  #     - name: Terraform Init
-  #       run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      # - name: Terraform Init
+      #   run: terraform init
+      - name: Terraform Init
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_subcommand: "init"
+          tf_actions_working_dir: "./infra/paas/terraform"
+          tf_actions_comment: true
 
   #     # Checks that all Terraform configuration files adhere to a canonical format
   #     # Will fail the build if not
