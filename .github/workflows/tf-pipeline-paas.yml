@@ -80,6 +80,11 @@ jobs:
           CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
         run: |
           cd $TF_DIR
+          echo "$PWD"
+          ls
+          echo "$STORAGE_ACCOUNT"
+          echo "$CONTAINER_NAME"
+          echo "$RESOURCE_GROUP"
           terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
       #     # Checks that all Terraform configuration files adhere to a canonical format
       #     # Will fail the build if not
