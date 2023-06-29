@@ -2,9 +2,9 @@ name: Azure Terraform Deployment
 
 on:
   # for development ###
-  push:
-    branches:
-      - dev
+  # push:
+  #   branches:
+  #     - dev
   # for development ###
 
   # need to be aligned to .tfvars file names
