@@ -29,7 +29,7 @@ $whb_installer_file = $temp_path + [System.IO.Path]::GetFileName( $whb_installer
 
 Try
 {
-
+    # https://learn.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-windows#using-invoke-webrequest
    Invoke-WebRequest -Uri $whb_installer_url -OutFile $whb_installer_file -UseBasicParsing
 
    Write-Output ""
