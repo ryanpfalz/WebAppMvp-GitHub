@@ -30,7 +30,7 @@ $whb_installer_file = $temp_path + [System.IO.Path]::GetFileName( $whb_installer
 Try
 {
 
-   Invoke-WebRequest -Uri $whb_installer_url -OutFile $whb_installer_file
+   Invoke-WebRequest -Uri $whb_installer_url -OutFile $whb_installer_file -UseBasicParsing
 
    Write-Output ""
    Write-Output "Windows Hosting Bundle Installer downloaded"
