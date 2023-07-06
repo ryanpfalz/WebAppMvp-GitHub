@@ -13,7 +13,8 @@ $temp_path = "C:\temp\"
 if (-not (Test-Path -Path $temp_path)) {
     New-Item -ItemType Directory -Path $temp_path | Out-Null
     Write-Host "Directory created: $temp_path"
-} else {
+}
+else {
     Write-Host "Directory already exists: $temp_path"
 }
 
@@ -27,36 +28,29 @@ $whb_installer_url = "https://download.visualstudio.microsoft.com/download/pr/6e
 
 $whb_installer_file = $temp_path + [System.IO.Path]::GetFileName( $whb_installer_url )
 
-Try
-{
+Try {
 
-   Invoke-WebRequest -Uri $whb_installer_url -OutFile $whb_installer_file
+    Invoke-WebRequest -Uri $whb_installer_url -OutFile $whb_installer_file
 
-   Write-Output ""
-   Write-Output "Windows Hosting Bundle Installer downloaded"
-   Write-Output "- Execute the $whb_installer_file to install the ASP.Net Core Runtime"
-   Write-Output ""
+    Write-Output ""
+    Write-Output "Windows Hosting Bundle Installer downloaded"
+    Write-Output "- Execute the $whb_installer_file to install the ASP.Net Core Runtime"
+    Write-Output ""
 
-   Start-Process $whb_installer_file -ArgumentList "/install /passive /norestart" -Wait
+    Start-Process $whb_installer_file -ArgumentList "/install /passive /norestart" -Wait
+
+    Write-Output "- Completed"
 
 }
-Catch
-{
+Catch {
 
-   Write-Output ( $_.Exception.ToString() )
+    Write-Output ( $_.Exception.ToString() )
 
-   Break
+    Break
 
 }
 
 # upload this script to a location that can be accessed by the VM, e.g. a blob container
 
 # invoke the custom script on the VM via Az CLI:
-
-# az vm extension set \
-# --publisher Microsoft.Compute \
-# --version 1.8 \
-# --name CustomScriptExtension \
-# --vm-name $VmName \
-# --resource-group $ResourceGroupName \
-# --settings '{"fileUris":["https://mystorageaccount.blob.core.windows.net/public/install-win-hosting-bundle.ps1"],"commandToExecute":"powershell.exe -ExecutionPolicy Unrestricted -file install-win-hosting-bundle.ps1"}'
+# az vm run-command invoke --command-id RunPowerShellScript --name $(vmName) -g $(resourceGroupName) --scripts @infra/scripts/install-win-hosting-bundle.ps1

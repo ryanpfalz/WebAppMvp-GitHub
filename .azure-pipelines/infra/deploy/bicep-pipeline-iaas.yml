@@ -37,3 +37,22 @@ stages:
               scriptLocation: "inlineScript"
               inlineScript: |
                 az deployment group create --resource-group $(resourceGroupName) --template-file infra/iaas/bicep/main.bicep --parameters adminUsername=$(adminUsername) vmSize=$(vmSize) vmName=$(vmName) location=$(location) adminPassword=$(adminPassword) --mode Incremental
+
+          # Add NSG rule to allow inboud on :80 (rename to use your NSG name/port(s))
+          - task: AzureCLI@2
+            displayName: "NSG: Allow inbound traffic"
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az network nsg rule create --name "AllowAnyPort80Inbound" --nsg-name "default-NSG" --priority 200 --resource-group $(resourceGroupName)
+
+          - task: AzureCLI@2
+            displayName: "Install .NET Windows Hosting Bundle"
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az vm run-command invoke --command-id RunPowerShellScript --name $(vmName) -g $(resourceGroupName) --scripts @infra/scripts/install-win-hosting-bundle.ps1

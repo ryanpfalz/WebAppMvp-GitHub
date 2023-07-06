@@ -1,0 +1,40 @@
+trigger: none
+
+pool:
+  vmImage: "windows-latest"
+
+variables:
+  project: "web/DemoWebApplication/**/*.csproj"
+  buildPlatform: "Any CPU"
+  buildConfiguration: "Release"
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+      version: "6.x"
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "restore"
+      projects: "$(project)"
+    displayName: "dotnet restore"
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "build"
+      projects: "$(project)"
+      arguments: "--configuration $(buildConfiguration)"
+    displayName: "dotnet build"
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "publish"
+      publishWebProjects: True
+      arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)"
+      zipAfterPublish: True
+    displayName: "dotnet publish"
+
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: "$(Build.ArtifactStagingDirectory)"
+      artifactName: "drop"
