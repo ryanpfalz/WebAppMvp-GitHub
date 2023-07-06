@@ -12,7 +12,7 @@ This example enables infrastructure to be provisioned for multiple environments 
 
 The goal of this codebase is to provide an example of how to use some of the best-in-class tools and approaches to deploying consistent environments and applications, and provide an easily modifiable starting point for your applications.
 
-Please note that this coodebase is actively under development and not every combination of hosting environment and IaC + CI/CD tool has been built yet.
+Please note that this codebase is actively under development and not every combination of hosting environment and IaC + CI/CD tool has been built yet. This codebase is for demonstration purposes only.
 
 ## Prerequisites
 
@@ -29,19 +29,19 @@ Please note that this coodebase is actively under development and not every comb
 
 ### Running the web application
 
-- The .NET solution/CS Project in the `web\DemoWebApplication` directory contains the web project. While you will replace your actual application with this one, I recommend starting with understanding how the release process for this sample application works. When you introduce your application, it will likely require modifications to the CI/CD files to reflect your frameworks and dependencies, as well as updates to the infrastructure as code files to reflect your architecture.
+- The .NET solution/CS Project in the `web/DemoWebApplication` directory contains the web project. While you will replace your actual application with this one, I recommend starting with understanding how the release process for this sample application works. When you introduce your application, it will likely require modifications to the CI/CD files to reflect your frameworks and dependencies, as well as updates to the infrastructure as code files to reflect your architecture.
 
 ### Azure DevOps
 
 #### Create Service Connection:
 
-Follow [this guide](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml) to set up a service conection with your Azure subscription.
+Follow [this guide](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml) to set up a service connection with your Azure subscription.
 
 #### Create Variable Group:
 
-In the files `infra\scripts\iaas-variables.ps1` and `infra\scripts\paas-variables.ps1`, insert variable values and execute the script for both Dev & QA environments. These variables will be used to drive your IaC and CI/CD processes. The `infra\scripts\tf-backend-variables.ps1` file should be populated with a values for a shared Terraform resource group that will be used to manage Terraform state across environments.
+In the files `infra/scripts/iaas-variables.ps1` and `infra/scripts/paas-variables.ps1`, insert variable values and execute the script for both Dev & QA environments. These variables will be used to drive your IaC and CI/CD processes. The `infra/scripts/tf-backend-variables.ps1` file should be populated with a values for a shared Terraform resource group that will be used to manage Terraform state across environments.
 
-These variables are referenced in the pipeline files; for example, see the 'environment' parameter in `.azure-pipelines\infra\deploy\bicep-pipeline-paas.yml`. The names of the variable groups you create should be overridden with the variable group name parameters populated in the '.azure-pipelines' directory. I named my variable groups '_WebAppVarsDev_', '_WebAppVarsQA_' , '_IaaSWebAppVarsDev_', '_IaaSWebAppVarsQA_', and '_TerraformVars_'.
+These variables are referenced in the pipeline files; for example, see the 'environment' parameter in `.azure-pipelines/infra/deploy/bicep-pipeline-paas.yml`. The names of the variable groups you create should be overridden with the variable group name parameters populated in the '.azure-pipelines' directory. I named my variable groups '_WebAppVarsDev_', '_WebAppVarsQA_' , '_IaaSWebAppVarsDev_', '_IaaSWebAppVarsQA_', and '_TerraformVars_'.
 
 These variable groups can be accessed under Pipelines > Library.
 
@@ -54,18 +54,18 @@ The environments will be used to set up approvals for deployment into your envir
 ##### For PaaS:
 
 1. In Pipelines > Pipelines, create pipeline for both the Infrastructure as Code and CI/CD pipelines. Here are the corresponding files:
-   - IaC w/ Bicep (provisioning): `.azure-pipelines\infra\deploy\bicep-pipeline-paas.yml`
-   - IaC w/ Terraform (provisioning): `.azure-pipelines\infra\deploy\tf-pipeline-paas.yml`
-   - CI/CD: `.azure-pipelines\app\webapp-cicd-paas.yml`
+   - IaC w/ Bicep (provisioning): `.azure-pipelines/infra/deploy/bicep-pipeline-paas.yml`
+   - IaC w/ Terraform (provisioning): `.azure-pipelines/infra/deploy/tf-pipeline-paas.yml`
+   - CI/CD: `.azure-pipelines/app/webapp-cicd-paas.yml`
 
 ##### For IaaS:
 
 1. In Pipelines > Pipelines, create pipeline for both the Infrastructure as Code and CI, and in Pipelines > Release create a CD pipeline. Here are the corresponding files:
 
-   - IaC w/ Bicep (provisioning): `.azure-pipelines\infra\deploy\bicep-pipeline-iaas.yml`
-   - IaC w/ Bicep (destroying): `.azure-pipelines\infra\destroy\bicep-pipeline-iaas-destroy.yml`
-   - CI: `.azure-pipelines\app\webapp-ci-iaas.yml`
-   - CD: `.azure-pipelines\infra\deploy\WebApp-IaaS-App-CD.json`. You'll need to modify the pipeline to use your service connections and deployment group (described further below).
+   - IaC w/ Bicep (provisioning): `.azure-pipelines/infra/deploy/bicep-pipeline-iaas.yml`
+   - IaC w/ Bicep (destroying): `.azure-pipelines/infra/destroy/bicep-pipeline-iaas-destroy.yml`
+   - CI: `.azure-pipelines/app/webapp-ci-iaas.yml`
+   - CD: `.azure-pipelines/infra/deploy/WebApp-IaaS-App-CD.json`. You'll need to modify the pipeline to use your service connections and deployment group (described further below).
 
 ##### If using Terraform:
 
@@ -85,8 +85,8 @@ At this point, you should be able to run the pipelines successfully. Here are so
   - You need to create a VM deployment group in Azure DevOps before running the CD pipeline
   - IIS is enabled in the CD pipeline
   - A new service connection needs to be created with a PAT
-  - The VMs in your resource group are automatically registered with the deployment group by using the "Azure Resource Group Geployment" task (version 2.\*, _not_ 3.\*). [This lab](https://azuredevopslabs.com/labs/vstsextend/deploymentgroups/) describes the steps in detail.
-  - The [Windows Hosting Bundle (for .NET 6.x)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) is installed on the VMs in the IaC setup using `infra\scripts\install-win-hosting-bundle.ps1`. If the site doesn't work after deploy, the program may need to be repaired on the VM.
+  - The VMs in your resource group are automatically registered with the deployment group by using the "Azure resource group deployment" task (version 2./_, *not* 3./_). [This lab](https://azuredevopslabs.com/labs/vstsextend/deploymentgroups/) describes the steps in detail.
+  - The [Windows Hosting Bundle (for .NET 6.x)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) is installed on the VMs in the IaC setup using `infra/scripts/install-win-hosting-bundle.ps1`. If the site doesn't work after deploy, the program may need to be repaired on the VM.
   - [This guide](https://learn.microsoft.com/en-us/archive/blogs/rakkimk/iis7-how-to-enable-the-detailed-error-messages-for-the-website-while-browsed-from-for-the-client-browsers) describes how to troubleshoot error messages from the client browser.
 
 ---
@@ -120,8 +120,8 @@ Follow [this guide](https://docs.github.com/en/actions/deployment/targeting-diff
 
 ##### For PaaS:
 
-1. As long as the below .yml files are present in the `.github\workflows` directory, they will automatically be detected in the Actions tab:
-   - IaC w/ Terraform (provisioning): `.github\workflows\tf-pipeline-paas.yml`
+1. As long as the below .yml files are present in the `.github/workflows` directory, they will automatically be detected in the Actions tab:
+   - IaC w/ Terraform (provisioning): `.github/workflows/tf-pipeline-paas.yml`
 
 #### Notes on GitHub setup
 
