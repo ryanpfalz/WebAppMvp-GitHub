@@ -47,7 +47,7 @@ These variable groups can be accessed under Pipelines > Library.
 
 #### Set up environment
 
-The environments will be used to set up approvals for deployment into your environments. The environments need to be created in the DevOps portal. Follow [this guide](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops) to create them. You'll need to update the environment used in the CI/CD pipeline files; for example, in the Deploy stages of `.azure-pipelines\app\webapp-cicd-paas.yml`, you'll need to update the 'environment' key to reflect your own environments. I named my environments '_WebAppMVP-Dev_' and '_WebAppMVP-QA_'.
+The environments will be used to set up approvals for deployment into your environments. The environments need to be created in the DevOps portal. Follow [this guide](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops) to create them. You'll need to update the environment used in the IaC and CI/CD pipeline files to reflect your own environments. I named my environments '_WebAppMVP-Dev_' and '_WebAppMVP-QA_'.
 
 #### Set up pipelines
 
@@ -67,7 +67,9 @@ The environments will be used to set up approvals for deployment into your envir
    - CI: `.azure-pipelines\app\webapp-ci-iaas.yml`
    - CD: `.azure-pipelines\infra\deploy\WebApp-IaaS-App-CD.json`. You'll need to modify the pipeline to use your service connections and deployment group (described further below).
 
-2. Install [Terraform extension](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks&targetId=be306e75-95ac-461a-a54e-5fd100dbb1b8&utm_source=vstsproduct&utm_medium=ExtHubManageList) from marketplace into your Azure DevOps organization.
+##### If using Terraform:
+
+- Install [Terraform extension](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks&targetId=be306e75-95ac-461a-a54e-5fd100dbb1b8&utm_source=vstsproduct&utm_medium=ExtHubManageList) from marketplace into your Azure DevOps organization.
 
 ##### For both IaC tools:
 
@@ -86,3 +88,41 @@ At this point, you should be able to run the pipelines successfully. Here are so
   - The VMs in your resource group are automatically registered with the deployment group by using the "Azure Resource Group Geployment" task (version 2.\*, _not_ 3.\*). [This lab](https://azuredevopslabs.com/labs/vstsextend/deploymentgroups/) describes the steps in detail.
   - The [Windows Hosting Bundle (for .NET 6.x)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) is installed on the VMs in the IaC setup using `infra\scripts\install-win-hosting-bundle.ps1`. If the site doesn't work after deploy, the program may need to be repaired on the VM.
   - [This guide](https://learn.microsoft.com/en-us/archive/blogs/rakkimk/iis7-how-to-enable-the-detailed-error-messages-for-the-website-while-browsed-from-for-the-client-browsers) describes how to troubleshoot error messages from the client browser.
+
+---
+
+### GitHub
+
+#### Create Service Principal:
+
+- Follow [this guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) to set up a Service Principal, which will be used to deploy to Azure.
+
+#### Create Variables:
+
+##### Secret variables:
+
+- For connection to Azure, using the Service Principal created above, create the following variables and populate the values with the corresponding value (you'll need to create a new secret):
+  - AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_SUBSCRIPTION_ID, AZURE_TENANT_ID
+  - Note that there are other mechanisms of authenticating with Azure, including [OIDC](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure).
+
+##### Repository variables:
+
+###### For Terraform:
+
+- Set up the following variables for managing Terraform state in Azure:
+  - TF_CONTAINER_NAME, TF_REGION, TF_RESOURCE_GROUP, and TF_STORAGE_ACCOUNT
+
+#### Set up environment
+
+Follow [this guide](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) to set up an environment for deployment. You'll need to update the environment used in the IaC and CI/CD pipeline files to reflect your own environments. I named my environments '_dev_' and '_qa_'.
+
+#### Set up actions
+
+##### For PaaS:
+
+1. As long as the below .yml files are present in the `.github\workflows` directory, they will automatically be detected in the Actions tab:
+   - IaC w/ Terraform (provisioning): `.github\workflows\tf-pipeline-paas.yml`
+
+#### Notes on GitHub setup
+
+At this point, you should be able to run the actions successfully.
