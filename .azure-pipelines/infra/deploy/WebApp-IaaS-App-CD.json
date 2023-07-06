@@ -1,0 +1,542 @@
+{
+    "source": 1,
+    "revision": 5,
+    "description": null,
+    "createdBy": {
+        "displayName": "",
+        "url": "https://spsprodcus5.vssps.visualstudio.com/A5b90a587-9090-43f4-9730-d4eaf5209afd/_apis/Identities/0bfe095d-8713-642e-9e4e-7b88c508faac",
+        "_links": {
+            "avatar": {
+                "href": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+            }
+        },
+        "id": "0bfe095d-8713-642e-9e4e-7b88c508faac",
+        "uniqueName": "",
+        "imageUrl": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj",
+        "descriptor": "aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+    },
+    "createdOn": "2023-07-01T21:22:29.880Z",
+    "modifiedBy": {
+        "displayName": "",
+        "url": "https://spsprodcus5.vssps.visualstudio.com/A5b90a587-9090-43f4-9730-d4eaf5209afd/_apis/Identities/0bfe095d-8713-642e-9e4e-7b88c508faac",
+        "_links": {
+            "avatar": {
+                "href": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+            }
+        },
+        "id": "0bfe095d-8713-642e-9e4e-7b88c508faac",
+        "uniqueName": "",
+        "imageUrl": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj",
+        "descriptor": "aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+    },
+    "modifiedOn": "2023-07-06T04:40:12.683Z",
+    "isDeleted": false,
+    "lastRelease": {
+        "id": 3,
+        "name": "Release-3",
+        "artifacts": [],
+        "_links": {},
+        "description": "Triggered by WebApp-IaaS-App-CI 20230705.1.",
+        "releaseDefinition": {
+            "id": 2,
+            "projectReference": null,
+            "_links": {}
+        },
+        "createdOn": "2023-07-05T04:01:55.423Z",
+        "createdBy": {
+            "displayName": "",
+            "url": "https://spsprodcus5.vssps.visualstudio.com/A5b90a587-9090-43f4-9730-d4eaf5209afd/_apis/Identities/0bfe095d-8713-642e-9e4e-7b88c508faac",
+            "_links": {
+                "avatar": {
+                    "href": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+                }
+            },
+            "id": "0bfe095d-8713-642e-9e4e-7b88c508faac",
+            "uniqueName": "",
+            "imageUrl": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj",
+            "descriptor": "aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+        }
+    },
+    "variables": {
+        "DatabaseName": { "value": "" },
+        "DBPassword": { "value": "" },
+        "DBUserName": { "value": "" },
+        "DefaultConnectionString": { "value": "" },
+        "ServerName": { "value": "" }
+    },
+    "variableGroups": [],
+    "environments": [
+        {
+            "id": 2,
+            "name": "Dev",
+            "rank": 1,
+            "owner": {
+                "displayName": "",
+                "url": "https://spsprodcus5.vssps.visualstudio.com/A5b90a587-9090-43f4-9730-d4eaf5209afd/_apis/Identities/0bfe095d-8713-642e-9e4e-7b88c508faac",
+                "_links": {
+                    "avatar": {
+                        "href": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+                    }
+                },
+                "id": "0bfe095d-8713-642e-9e4e-7b88c508faac",
+                "uniqueName": "",
+                "imageUrl": "https://dev.azure.com/ryanpfalz/_apis/GraphProfile/MemberAvatars/aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj",
+                "descriptor": "aad.MGJmZTA5NWQtODcxMy03NDJlLTllNGUtN2I4OGM1MDhmYWFj"
+            },
+            "variables": {},
+            "variableGroups": [],
+            "preDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 4
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 1
+                }
+            },
+            "deployStep": { "id": 5 },
+            "postDeployApprovals": {
+                "approvals": [
+                    {
+                        "rank": 1,
+                        "isAutomated": true,
+                        "isNotificationOn": false,
+                        "id": 6
+                    }
+                ],
+                "approvalOptions": {
+                    "requiredApproverCount": null,
+                    "releaseCreatorCanBeApprover": false,
+                    "autoTriggeredAndPreviousEnvironmentApprovedCanBeSkipped": false,
+                    "enforceIdentityRevalidation": false,
+                    "timeoutInMinutes": 0,
+                    "executionOrder": 2
+                }
+            },
+            "deployPhases": [
+                {
+                    "deploymentInput": {
+                        "parallelExecution": { "parallelExecutionType": 0 },
+                        "agentSpecification": {
+                            "identifier": "windows-latest"
+                        },
+                        "skipArtifactsDownload": false,
+                        "artifactsDownloadInput": { "downloadInputs": [] },
+                        "queueId": 36,
+                        "demands": [],
+                        "enableAccessToken": false,
+                        "timeoutInMinutes": 0,
+                        "jobCancelTimeoutInMinutes": 1,
+                        "condition": "succeeded()",
+                        "overrideInputs": {}
+                    },
+                    "rank": 1,
+                    "phaseType": 1,
+                    "name": "Agent phase",
+                    "refName": null,
+                    "workflowTasks": [
+                        {
+                            "environment": {},
+                            "taskId": "94a74903-f93f-4075-884f-dc11f34058b4",
+                            "version": "2.*",
+                            "name": "Azure Deployment:Select Resource Group action on iaas-webappmvp-dev",
+                            "refName": "",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "retryCountOnTaskFailure": 0,
+                            "definitionType": "task",
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "ConnectedServiceName": "a0e4ae2c-832e-42fe-92cb-ef03c40879bc",
+                                "action": "Select Resource Group",
+                                "resourceGroupName": "iaas-webappmvp-dev",
+                                "location": "",
+                                "templateLocation": "Linked artifact",
+                                "csmFileLink": "",
+                                "csmParametersFileLink": "",
+                                "csmFile": "",
+                                "csmParametersFile": "",
+                                "overrideParameters": "",
+                                "deploymentMode": "Incremental",
+                                "enableDeploymentPrerequisites": "ConfigureVMWithDGAgent",
+                                "deploymentGroupEndpoint": "d5f47120-b6bf-41b1-901d-d4a2eb2ce693",
+                                "project": "WebApp MVP",
+                                "deploymentGroupName": "WebApp-AzureVM",
+                                "copyAzureVMTags": "true",
+                                "runAgentServiceAsUser": "false",
+                                "userName": "",
+                                "password": "",
+                                "outputVariable": "",
+                                "deploymentName": "",
+                                "deploymentOutputs": "",
+                                "addSpnToEnvironment": "false"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "deploymentInput": {
+                        "healthPercent": 0,
+                        "deploymentHealthOption": "Custom",
+                        "tags": [],
+                        "skipArtifactsDownload": false,
+                        "artifactsDownloadInput": { "downloadInputs": [] },
+                        "queueId": 37,
+                        "demands": [],
+                        "enableAccessToken": false,
+                        "timeoutInMinutes": 0,
+                        "jobCancelTimeoutInMinutes": 1,
+                        "condition": "succeeded()",
+                        "overrideInputs": {}
+                    },
+                    "rank": 2,
+                    "phaseType": 4,
+                    "name": "IIS Deployment Phase",
+                    "refName": null,
+                    "workflowTasks": [
+                        {
+                            "environment": {},
+                            "taskId": "1b2aec60-dc49-11e6-9b76-63056e018cac",
+                            "version": "0.*",
+                            "name": "IIS Web App Manage",
+                            "refName": "IISWebAppManagementOnMachineGroup1",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "retryCountOnTaskFailure": 0,
+                            "definitionType": null,
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "EnableIIS": "true",
+                                "IISDeploymentType": "$(Parameters.IISDeploymentType)",
+                                "ActionIISWebsite": "$(Parameters.ActionIISWebsite)",
+                                "ActionIISApplicationPool": "CreateOrUpdateAppPool",
+                                "StartStopWebsiteName": "$(Parameters.WebsiteName)",
+                                "WebsiteName": "$(Parameters.WebsiteName)",
+                                "WebsitePhysicalPath": "%SystemDrive%\\inetpub\\wwwroot",
+                                "WebsitePhysicalPathAuth": "WebsiteUserPassThrough",
+                                "WebsiteAuthUserName": "",
+                                "WebsiteAuthUserPassword": "",
+                                "AddBinding": "$(Parameters.AddBinding)",
+                                "Protocol": "http",
+                                "IPAddress": "All Unassigned",
+                                "Port": "80",
+                                "ServerNameIndication": "false",
+                                "HostNameWithOutSNI": "",
+                                "HostNameWithHttp": "",
+                                "HostNameWithSNI": "",
+                                "SSLCertThumbPrint": "",
+                                "Bindings": "$(Parameters.Bindings)",
+                                "CreateOrUpdateAppPoolForWebsite": "false",
+                                "ConfigureAuthenticationForWebsite": "false",
+                                "AppPoolNameForWebsite": "DemoWebApplication",
+                                "DotNetVersionForWebsite": "No Managed Code",
+                                "PipeLineModeForWebsite": "Integrated",
+                                "AppPoolIdentityForWebsite": "ApplicationPoolIdentity",
+                                "AppPoolUsernameForWebsite": "",
+                                "AppPoolPasswordForWebsite": "",
+                                "AnonymousAuthenticationForWebsite": "false",
+                                "BasicAuthenticationForWebsite": "false",
+                                "WindowsAuthenticationForWebsite": "true",
+                                "ParentWebsiteNameForVD": "$(Parameters.WebsiteName)",
+                                "VirtualPathForVD": "$(Parameters.VirtualPathForApplication)",
+                                "PhysicalPathForVD": "%SystemDrive%\\inetpub\\wwwroot",
+                                "VDPhysicalPathAuth": "VDUserPassThrough",
+                                "VDAuthUserName": "",
+                                "VDAuthUserPassword": "",
+                                "ParentWebsiteNameForApplication": "$(Parameters.WebsiteName)",
+                                "VirtualPathForApplication": "$(Parameters.VirtualPathForApplication)",
+                                "PhysicalPathForApplication": "%SystemDrive%\\inetpub\\wwwroot",
+                                "ApplicationPhysicalPathAuth": "ApplicationUserPassThrough",
+                                "ApplicationAuthUserName": "",
+                                "ApplicationAuthUserPassword": "",
+                                "CreateOrUpdateAppPoolForApplication": "false",
+                                "AppPoolNameForApplication": "",
+                                "DotNetVersionForApplication": "v4.0",
+                                "PipeLineModeForApplication": "Integrated",
+                                "AppPoolIdentityForApplication": "ApplicationPoolIdentity",
+                                "AppPoolUsernameForApplication": "",
+                                "AppPoolPasswordForApplication": "",
+                                "AppPoolName": "$(Parameters.AppPoolName)",
+                                "DotNetVersion": "v4.0",
+                                "PipeLineMode": "Integrated",
+                                "AppPoolIdentity": "ApplicationPoolIdentity",
+                                "AppPoolUsername": "",
+                                "AppPoolPassword": "",
+                                "StartStopRecycleAppPoolName": "",
+                                "AppCmdCommands": ""
+                            }
+                        },
+                        {
+                            "environment": {},
+                            "taskId": "1b467810-6725-4b6d-accd-886174c09bba",
+                            "version": "0.*",
+                            "name": "IIS Web App Deploy",
+                            "refName": "IISWebAppDeploymentOnMachineGroup2",
+                            "enabled": true,
+                            "alwaysRun": false,
+                            "continueOnError": false,
+                            "timeoutInMinutes": 0,
+                            "retryCountOnTaskFailure": 0,
+                            "definitionType": null,
+                            "overrideInputs": {},
+                            "condition": "succeeded()",
+                            "inputs": {
+                                "WebSiteName": "$(Parameters.WebsiteName)",
+                                "VirtualApplication": "",
+                                "Package": "$(System.DefaultWorkingDirectory)\\**\\*.zip",
+                                "SetParametersFile": "",
+                                "RemoveAdditionalFilesFlag": "false",
+                                "ExcludeFilesFromAppDataFlag": "false",
+                                "TakeAppOfflineFlag": "false",
+                                "AdditionalArguments": "",
+                                "XmlTransformation": "true",
+                                "XmlVariableSubstitution": "true",
+                                "JSONFiles": ""
+                            }
+                        }
+                    ]
+                }
+            ],
+            "environmentOptions": {
+                "emailNotificationType": "OnlyOnFailure",
+                "emailRecipients": "release.environment.owner;release.creator",
+                "skipArtifactsDownload": false,
+                "timeoutInMinutes": 0,
+                "enableAccessToken": false,
+                "publishDeploymentStatus": true,
+                "badgeEnabled": false,
+                "autoLinkWorkItems": false,
+                "pullRequestDeploymentEnabled": false
+            },
+            "demands": [],
+            "conditions": [
+                { "name": "ReleaseStarted", "conditionType": 1, "value": "" }
+            ],
+            "executionPolicy": { "concurrencyCount": 0, "queueDepthCount": 0 },
+            "schedules": [],
+            "currentRelease": {
+                "id": 3,
+                "url": "https://vsrm.dev.azure.com/ryanpfalz/1622d1ba-e129-4e64-a042-68fbf5d71bef/_apis/Release/releases/3",
+                "_links": {}
+            },
+            "retentionPolicy": {
+                "daysToKeep": 30,
+                "releasesToKeep": 3,
+                "retainBuild": true
+            },
+            "processParameters": {
+                "inputs": [
+                    {
+                        "aliases": [],
+                        "options": {
+                            "IISWebsite": "IIS Website",
+                            "IISWebApplication": "IIS Web Application",
+                            "IISVirtualDirectory": "IIS Virtual Directory",
+                            "IISApplicationPool": "IIS Application Pool"
+                        },
+                        "properties": {},
+                        "name": "IISDeploymentType",
+                        "label": "Configuration type",
+                        "defaultValue": "IISWebsite",
+                        "required": true,
+                        "type": "pickList",
+                        "helpMarkDown": "You can create or update sites, applications, virtual directories, and application pools.",
+                        "groupName": ""
+                    },
+                    {
+                        "aliases": [],
+                        "options": {
+                            "CreateOrUpdateWebsite": "Create Or Update",
+                            "StartWebsite": "Start",
+                            "StopWebsite": "Stop"
+                        },
+                        "properties": {},
+                        "name": "ActionIISWebsite",
+                        "label": "Action",
+                        "defaultValue": "CreateOrUpdateWebsite",
+                        "required": true,
+                        "type": "pickList",
+                        "helpMarkDown": "Select the appropriate action that you want to perform on an IIS website.<br /><br />\\\"Create Or Update\\\" will create a website or update an existing website.<br /><br /> Start, Stop will start or stop the website respectively.",
+                        "visibleRule": "IISDeploymentType = IISWebsite",
+                        "groupName": ""
+                    },
+                    {
+                        "aliases": [],
+                        "options": {},
+                        "properties": {},
+                        "name": "WebsiteName",
+                        "label": "Website name",
+                        "defaultValue": "Default Web Site",
+                        "required": true,
+                        "type": "string",
+                        "helpMarkDown": "Provide the name of the IIS website to create or update.",
+                        "groupName": ""
+                    },
+                    {
+                        "aliases": [],
+                        "options": {},
+                        "properties": {},
+                        "name": "AddBinding",
+                        "label": "Add binding",
+                        "defaultValue": "True",
+                        "type": "boolean",
+                        "helpMarkDown": "Select the option to add port binding for the website.",
+                        "visibleRule": "IISDeploymentType = IISWebsite && ActionIISWebsite = CreateOrUpdateWebsite",
+                        "groupName": ""
+                    },
+                    {
+                        "aliases": [],
+                        "options": {},
+                        "properties": {
+                            "resizable": "true",
+                            "editorExtension": "ms.vss-services-azure.iis-multiple-binding",
+                            "displayFormat": "{{#bindings}}{{protocol}}/{{ipAddress}}:{{port}}:{{hostname}}\n{{/bindings}}"
+                        },
+                        "name": "Bindings",
+                        "label": "Add bindings",
+                        "defaultValue": "{\"bindings\":[{\"protocol\":\"http\",\"ipAddress\":\"All Unassigned\",\"port\":\"80\",\"hostname\":\"\",\"sslThumbprint\":\"\",\"sniFlag\":false}]}",
+                        "required": true,
+                        "type": "multiLine",
+                        "helpMarkDown": "Click on the extension [...] button to add bindings for the website.",
+                        "visibleRule": "IISDeploymentType = IISWebsite && ActionIISWebsite = CreateOrUpdateWebsite && AddBinding = true",
+                        "groupName": ""
+                    },
+                    {
+                        "aliases": [],
+                        "options": {},
+                        "properties": {},
+                        "name": "AppPoolName",
+                        "label": "Application pool name",
+                        "defaultValue": "",
+                        "required": true,
+                        "type": "string",
+                        "helpMarkDown": "Provide the name of the IIS application pool to create or update.",
+                        "visibleRule": "IISDeploymentType = IISApplicationPool",
+                        "groupName": ""
+                    },
+                    {
+                        "aliases": [],
+                        "options": {},
+                        "properties": {},
+                        "name": "VirtualPathForApplication",
+                        "label": "Virtual path",
+                        "defaultValue": "",
+                        "required": true,
+                        "type": "string",
+                        "helpMarkDown": "Provide the virtual path of the application. <br /><br />Example: To create an application Site/Application enter /Application. The parent website should be already existing.",
+                        "visibleRule": "IISDeploymentType = IISWebApplication || IISDeploymentType = IISVirtualDirectory",
+                        "groupName": ""
+                    }
+                ]
+            },
+            "properties": {
+                "LinkBoardsWorkItems": {
+                    "$type": "System.String",
+                    "$value": "False"
+                }
+            },
+            "preDeploymentGates": {
+                "id": 0,
+                "gatesOptions": {
+                    "isEnabled": false,
+                    "timeout": 1440,
+                    "samplingInterval": 15,
+                    "stabilizationTime": 15,
+                    "minimumSuccessDuration": 0
+                },
+                "gates": []
+            },
+            "postDeploymentGates": {
+                "id": 0,
+                "gatesOptions": {
+                    "isEnabled": false,
+                    "timeout": 1440,
+                    "samplingInterval": 15,
+                    "stabilizationTime": 15,
+                    "minimumSuccessDuration": 0
+                },
+                "gates": []
+            },
+            "environmentTriggers": [],
+            "badgeUrl": "https://vsrm.dev.azure.com/ryanpfalz/_apis/public/Release/badge/1622d1ba-e129-4e64-a042-68fbf5d71bef/2/2"
+        }
+    ],
+    "artifacts": [
+        {
+            "sourceId": "1622d1ba-e129-4e64-a042-68fbf5d71bef:25",
+            "type": "Build",
+            "alias": "_WebApp-IaaS-App-CI",
+            "definitionReference": {
+                "artifactSourceDefinitionUrl": {
+                    "id": "https://dev.azure.com/ryanpfalz/_permalink/_build/index?collectionId=be306e75-95ac-461a-a54e-5fd100dbb1b8&projectId=1622d1ba-e129-4e64-a042-68fbf5d71bef&definitionId=25",
+                    "name": ""
+                },
+                "defaultVersionBranch": { "id": "", "name": "" },
+                "defaultVersionSpecific": { "id": "", "name": "" },
+                "defaultVersionTags": { "id": "", "name": "" },
+                "defaultVersionType": { "id": "latestType", "name": "Latest" },
+                "definition": { "id": "25", "name": "WebApp-IaaS-App-CI" },
+                "definitions": { "id": "", "name": "" },
+                "IsMultiDefinitionType": { "id": "False", "name": "False" },
+                "project": {
+                    "id": "1622d1ba-e129-4e64-a042-68fbf5d71bef",
+                    "name": "WebApp MVP"
+                },
+                "repository": { "id": "", "name": "" }
+            },
+            "isPrimary": true,
+            "isRetained": false
+        }
+    ],
+    "triggers": [
+        {
+            "artifactAlias": "_WebApp-IaaS-App-CI",
+            "triggerConditions": [],
+            "triggerType": 1
+        }
+    ],
+    "releaseNameFormat": "Release-$(rev:r)",
+    "tags": [],
+    "properties": {
+        "DefinitionCreationSource": {
+            "$type": "System.String",
+            "$value": "ReleaseImport"
+        },
+        "IntegrateBoardsWorkItems": {
+            "$type": "System.String",
+            "$value": "False"
+        },
+        "IntegrateJiraWorkItems": {
+            "$type": "System.String",
+            "$value": "false"
+        }
+    },
+    "id": 2,
+    "name": "WebApp-IaaS-App-CD",
+    "path": "\\",
+    "projectReference": null,
+    "url": "https://vsrm.dev.azure.com/ryanpfalz/1622d1ba-e129-4e64-a042-68fbf5d71bef/_apis/Release/definitions/2",
+    "_links": {
+        "self": {
+            "href": "https://vsrm.dev.azure.com/ryanpfalz/1622d1ba-e129-4e64-a042-68fbf5d71bef/_apis/Release/definitions/2"
+        },
+        "web": {
+            "href": "https://dev.azure.com/ryanpfalz/1622d1ba-e129-4e64-a042-68fbf5d71bef/_release?definitionId=2"
+        }
+    }
+}
