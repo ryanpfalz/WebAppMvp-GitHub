@@ -1,69 +1,128 @@
-# Introduction
+| Page Type | Languages                                     | Key Services                    | Tools                                                                                |
+| --------- | --------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------ |
+| Sample    | .NET Core <br> PowerShell <br> Bicep <br> HCL | Azure App Service <br> Azure VM | Terraform <br> Azure CLI <br> Azure DevOps (Pipelines, Releases) <br> GitHub Actions |
 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project.
+---
 
-# Getting Started
+# Automated Infrastructure as Code & CI/CD Examples
 
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
+This sample codebase demonstrates how to use Azure DevOps or GitHub to provision PaaS or IaaS infrastructure with either Bicep or Terraform, and then release a basic web application to that infrastructure with CI/CD in either Azure Pipelines or GitHub Actions.
 
-1. Installation process
-2. Software dependencies
-3. Latest releases
-4. API references
+This example enables infrastructure to be provisioned for multiple environments (Dev, QA) and released/promoted to the environments via an approval process in the CI/CD process. The same web application codebase is deployed into the hosting environments with whichever toolset you choose (GitHub/Azure DevOps, Bicep/Terraform), with configuration driven by build- or release-time variables.
 
-# Build and Test
+The goal of this codebase is to provide an example of how to use some of the best-in-class tools and approaches to deploying consistent environments and applications, and provide an easily modifiable starting point for your applications.
 
-TODO: Describe and show how to build your code and run the tests.
+Please note that this codebase is actively under development and not every combination of hosting environment and IaC + CI/CD tool has been built yet. This codebase is for demonstration purposes only.
 
-# Contribute
+## Prerequisites
 
-TODO: Explain how other users and developers can contribute to make your code better.
+- [An Azure Subscription](https://azure.microsoft.com/en-us/free/) - for hosting cloud infrastructure
+- [An Azure DevOps Organization + Project](https://azure.microsoft.com/en-us/products/devops/) - for managing code and running Pipelines
+- [A GitHub account](https://github.com/) - for managing code and running Actions
+- [Terraform](https://www.terraform.io/) - for working with HCL infrastructure as code files
+- [Bicep tools](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install) - for working with Bicep infrastructure as code files
+- [Az CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) - for executing Azure commands
+- [.NET Core](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) - for web application and Playwright development
+- [Visual Studio](https://visualstudio.microsoft.com/) - for development
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
+## Running this sample
 
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+### Running the web application
 
-----------
-Steps:
-- Establish codebase
-- Set up service connection
-- Set up variable group(s)
-- Set up environment(s)
-- Set up pipeline(s)
+- The .NET solution/CS Project in the `web/DemoWebApplication` directory contains the web project. While you will replace your actual application with this one, I recommend starting with understanding how the release process for this sample application works. When you introduce your application, it will likely require modifications to the CI/CD files to reflect your frameworks and dependencies, as well as updates to the infrastructure as code files to reflect your architecture.
 
-### Create Variable Group:
-First:
-```
-az login
-az devops configure --defaults organization=https://dev.azure.com/<yourAzDOOrg>/
-az devops configure --defaults project='<yourAzDOProject>'
-```
+### Azure DevOps
 
-Then:
-```
-az pipelines variable-group create
-    --organization=https://dev.azure.com/<yourAzDOOrg>/
-    --project='<yourAzDOProject>'
-    --name '<variableGroupName>-<env>'
-    --variables
-        azureSubscription='<yourSubscriptionName/serviceConnectionName>'
-        region='centralus'
-        resourceGroupName=''
-        appServiceName=''
-        appServicePlanName=''
-        tfBackendRg=''
-        tfBackendStorageAccount=''
-        tfBackendContainer=''
-```
+#### Create Service Connection:
 
-One line:
-```
-az pipelines variable-group create --organization https://dev.azure.com/<yourAzDOOrg>/ --project '<yourAzDOProject>' --name '<variableGroupName>-<env>' --variables azureSubscription='<yourSubscriptionName/serviceConnectionName>' region='centralus' resourceGroupName='' appServiceName='' appServicePlanName='' tfBackendRg='' tfBackendStorageAccount='' tfBackendContainer=''
-```
+Follow [this guide](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml) to set up a service connection with your Azure subscription.
 
-### Set up environment
-Create in DevOps portal
+#### Create Variable Group:
 
-Need to install Terraform extension from marketplace
+In the files `infra/scripts/iaas-variables.ps1` and `infra/scripts/paas-variables.ps1`, insert variable values and execute the script for both Dev & QA environments. These variables will be used to drive your IaC and CI/CD processes. The `infra/scripts/tf-backend-variables.ps1` file should be populated with a values for a shared Terraform resource group that will be used to manage Terraform state across environments.
+
+These variables are referenced in the pipeline files; for example, see the 'environment' parameter in `.azure-pipelines/infra/deploy/bicep-pipeline-paas.yml`. The names of the variable groups you create should be overridden with the variable group name parameters populated in the '.azure-pipelines' directory. I named my variable groups '_WebAppVarsDev_', '_WebAppVarsQA_' , '_IaaSWebAppVarsDev_', '_IaaSWebAppVarsQA_', and '_TerraformVars_'.
+
+These variable groups can be accessed under Pipelines > Library.
+
+#### Set up environment
+
+The environments will be used to set up approvals for deployment into your environments. The environments need to be created in the DevOps portal. Follow [this guide](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops) to create them. You'll need to update the environment used in the IaC and CI/CD pipeline files to reflect your own environments. I named my environments '_WebAppMVP-Dev_' and '_WebAppMVP-QA_'.
+
+#### Set up pipelines
+
+##### For PaaS:
+
+1. In Pipelines > Pipelines, create pipelines for both the Infrastructure as Code and CI/CD pipelines. Here are the corresponding files:
+   - IaC w/ Bicep (provisioning): `.azure-pipelines/infra/deploy/bicep-pipeline-paas.yml`
+   - IaC w/ Terraform (provisioning): `.azure-pipelines/infra/deploy/tf-pipeline-paas.yml`
+   - CI/CD: `.azure-pipelines/app/webapp-cicd-paas.yml`
+
+##### For IaaS:
+
+1. In Pipelines > Pipelines, create pipelines for both the Infrastructure as Code and CI, and in Pipelines > Release create a CD pipeline. Here are the corresponding files:
+
+   - IaC w/ Bicep (provisioning): `.azure-pipelines/infra/deploy/bicep-pipeline-iaas.yml`
+   - IaC w/ Bicep (destroying): `.azure-pipelines/infra/destroy/bicep-pipeline-iaas-destroy.yml`
+   - CI: `.azure-pipelines/app/webapp-ci-iaas.yml`
+   - CD: `.azure-pipelines/infra/deploy/WebApp-IaaS-App-CD.json`. You'll need to modify the pipeline to use your service connections and deployment group (described further below).
+
+##### If using Terraform:
+
+- Install [Terraform extension](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks&targetId=be306e75-95ac-461a-a54e-5fd100dbb1b8&utm_source=vstsproduct&utm_medium=ExtHubManageList) from marketplace into your Azure DevOps organization.
+
+##### For both IaC tools:
+
+1. Link the variable groups created above to each of the associated pipelines (e.g., any PaaS pipeline should be related with the PaaS variable groups, any Terraform pipeline should be related with the Terraform variable group, etc.).
+
+#### Notes on Azure DevOps setup
+
+At this point, you should be able to run the pipelines successfully. Here are some notes:
+
+- Run the Infrastructure as Code pipelines first. The IaC and CI/CD pipelines are deliberately kept separate in this codebase, but they can easily be combined.
+- The PaaS CI/CD pipelines heavily refer to [this documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/ecosystems/dotnet-core?view=azure-devops&tabs=dotnetfive).
+- The IaaS CI/CD pipelines heavily refer to [this documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/apps/cd/deploy-webdeploy-iis-deploygroups?view=azure-devops&tabs=net) and [this lab](https://azuredevopslabs.com/labs/vstsextend/deploymentgroups/). Notably:
+  - You need to create a VM deployment group in Azure DevOps before running the CD pipeline
+  - IIS is enabled in the CD pipeline
+  - A new service connection needs to be created with a PAT
+  - The VMs in your resource group are automatically registered with the deployment group by using the "Azure resource group deployment" task (version 2./_, *not* 3./_). [This lab](https://azuredevopslabs.com/labs/vstsextend/deploymentgroups/) describes the steps in detail.
+  - The [Windows Hosting Bundle (for .NET 6.x)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) is installed on the VMs in the IaC setup using `infra/scripts/install-win-hosting-bundle.ps1`. If the site doesn't work after deploy, the program may need to be repaired on the VM.
+  - [This guide](https://learn.microsoft.com/en-us/archive/blogs/rakkimk/iis7-how-to-enable-the-detailed-error-messages-for-the-website-while-browsed-from-for-the-client-browsers) describes how to troubleshoot error messages from the client browser.
+
+---
+
+### GitHub
+
+#### Create Service Principal:
+
+- Follow [this guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) to set up a Service Principal, which will be used to deploy to Azure.
+
+#### Create Variables:
+
+##### Secret variables:
+
+- For connection to Azure, using the Service Principal created above, create the following variables and populate the values with the corresponding value (you'll need to create a new secret):
+  - AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_SUBSCRIPTION_ID, AZURE_TENANT_ID
+  - Note that there are other mechanisms of authenticating with Azure, including [OIDC](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure).
+
+##### Repository variables:
+
+###### For Terraform:
+
+- Set up the following variables for managing Terraform state in Azure:
+  - TF_CONTAINER_NAME, TF_REGION, TF_RESOURCE_GROUP, and TF_STORAGE_ACCOUNT
+
+#### Set up environment
+
+Follow [this guide](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) to set up an environment for deployment. You'll need to update the environment used in the IaC and CI/CD pipeline files to reflect your own environments. I named my environments '_dev_' and '_qa_'.
+
+#### Set up actions
+
+##### For PaaS:
+
+1. As long as the below .yml files are present in the `.github/workflows` directory, they will automatically be detected in the Actions tab:
+   - IaC w/ Terraform (provisioning): `.github/workflows/tf-pipeline-paas.yml`
+
+#### Notes on GitHub setup
+
+At this point, you should be able to run the actions successfully.
