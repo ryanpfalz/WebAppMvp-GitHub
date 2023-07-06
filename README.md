@@ -53,14 +53,14 @@ The environments will be used to set up approvals for deployment into your envir
 
 ##### For PaaS:
 
-1. In Pipelines > Pipelines, create pipeline for both the Infrastructure as Code and CI/CD pipelines. Here are the corresponding files:
+1. In Pipelines > Pipelines, create pipelines for both the Infrastructure as Code and CI/CD pipelines. Here are the corresponding files:
    - IaC w/ Bicep (provisioning): `.azure-pipelines/infra/deploy/bicep-pipeline-paas.yml`
    - IaC w/ Terraform (provisioning): `.azure-pipelines/infra/deploy/tf-pipeline-paas.yml`
    - CI/CD: `.azure-pipelines/app/webapp-cicd-paas.yml`
 
 ##### For IaaS:
 
-1. In Pipelines > Pipelines, create pipeline for both the Infrastructure as Code and CI, and in Pipelines > Release create a CD pipeline. Here are the corresponding files:
+1. In Pipelines > Pipelines, create pipelines for both the Infrastructure as Code and CI, and in Pipelines > Release create a CD pipeline. Here are the corresponding files:
 
    - IaC w/ Bicep (provisioning): `.azure-pipelines/infra/deploy/bicep-pipeline-iaas.yml`
    - IaC w/ Bicep (destroying): `.azure-pipelines/infra/destroy/bicep-pipeline-iaas-destroy.yml`
