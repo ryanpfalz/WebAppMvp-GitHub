@@ -1,0 +1,32 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+# environment determined by selection at runtime
+parameters:
+  - name: environment
+    displayName: Variable Group
+    type: string
+    default: IaaSWebAppVarsDev
+    values:
+      - IaaSWebAppVarsDev
+      - IaaSWebAppVarsQA
+
+stages:
+  - stage:
+    variables:
+      - group: ${{ parameters.environment }}
+    displayName: "Destroy environment using ${{ parameters.environment }}"
+    jobs:
+      - job:
+        steps:
+          - task: AzureCLI@2
+            displayName: "Destroy Environment"
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                echo '' > empty.bicep
+                az deployment group create --template-file empty.bicep --resource-group $(resourceGroupName) --mode Complete
